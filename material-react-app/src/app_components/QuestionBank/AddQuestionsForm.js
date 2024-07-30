@@ -1,0 +1,365 @@
+import React, { useContext, useState, useEffect } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import MDBox from "components/MDBox";
+import MDTypography from "components/MDTypography";
+import Card from "@mui/material/Card";
+import MDInput from "components/MDInput";
+import MDButton from "components/MDButton";
+import { MenuItem, Select } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+
+import axios from "axios";
+import { toast } from "react-toastify";
+const AddQuestionsForm = () => {
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+  const area = location.pathname.substring(
+    location.pathname.lastIndexOf("/") + 1
+  );
+
+  const [credentialsErros, setCredentialsError] = useState(null);
+  const [inputs, setInputs] = useState({
+    question: "",
+    questionLines: [],
+    area,
+    choice1: "",
+    choice2: "",
+    choice3: "",
+    choice4: "",
+    correct_choice: "",
+    image: "",
+  });
+
+  const [errors, setErrors] = useState({
+    question: "",
+    questionLines: [],
+    area,
+    choice1: "",
+    choice2: "",
+    choice3: "",
+    choice4: "",
+    correct_choice: "1",
+    image: "",
+  });
+  // changing input values
+  const changeHandler = (e) => {
+    if (e.target.name !== "image") {
+      setInputs({
+        ...inputs,
+        [e.target.name]: e.target.value,
+      });
+    } else {
+      setInputs({
+        ...inputs,
+        [e.target.name]: e.target.files[0],
+      });
+    }
+    if (e.target.name === 'question') {
+      const questionLines = e.target.value.split('\n');
+      setInputs(prevInputs => ({
+        ...prevInputs,
+        question: e.target.value,
+        questionLines: questionLines,
+      }));
+    }
+  };  
+
+  const handleAddQuestions = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    // Validation
+    const condition =
+      inputs.question.trim() === "" ||
+      inputs.area.trim() === "" ||
+      inputs.choice1.trim() === "" ||
+      inputs.choice2.trim() === "" ||
+      inputs.choice3.trim() === "" ||
+      inputs.choice4.trim() === "" ||
+      inputs.correct_choice.trim() === "";
+
+    if (condition) {
+      alert("All fields are required");
+      setLoading(false);
+    } else {
+      console.log(inputs);
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/addQuestionMCQ`,
+          inputs,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.data) {
+          setLoading(false);
+          // Reset inputs and errors
+          toast.info("Question added successfully.",{
+            style:{
+              fontSize:"14px"
+            },
+            autoClose:3000,
+            onClose:()=>{
+              window.location.reload()
+            }
+          })
+          
+        }
+      } catch (error) {
+        setLoading(false);
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          setCredentialsError(error.response.data.message);
+        } else {
+          setCredentialsError("An error occurred while adding the question.");
+        }
+      }
+    }
+  };
+
+  return (
+    <Card id="delete-account">
+      <MDBox pt={5} px={2}></MDBox>
+      <MDBox pt={0} pb={2} px={2}>
+        <Card
+          style={{
+            width: "70%",
+            margin: "0px auto",
+          }}
+        >
+          <MDBox
+            variant="gradient"
+            bgColor="info"
+            borderRadius="lg"
+            coloredShadow="info"
+            mx={2}
+            mt={-3}
+            p={2}
+            mb={1}
+            textAlign="center"
+          >
+            <MDTypography variant="h6" fontWeight="medium" color="white" mt={1}>
+              Add {area} MCQ Questions
+            </MDTypography>
+          </MDBox>
+
+          <MDBox pt={4} pb={3} px={3}>
+            <MDBox
+              component="form"
+              role="form"
+              method="POST"
+              onSubmit={handleAddQuestions}
+            >
+              <MDBox mb={2}>
+                <MDTypography variant="button" fontWeight="light">
+                  Question{" "}
+                </MDTypography>
+                <textarea
+                  rows={5} // You can adjust the number of rows as needed
+                  style={{ width: "100%", resize: "vertical" }} // You can adjust the style as needed
+                  value={inputs.question}
+                  name="question"
+                  onChange={changeHandler}
+                />
+              </MDBox>
+
+              <MDBox mb={2}>
+                <MDTypography variant="button" fontWeight="light">
+                  Image
+                </MDTypography>
+                <MDInput
+                  type="file"
+                  label=""
+                  fullWidth
+                  name="image"
+                  // value={inputs.password}
+                  onChange={changeHandler}
+                  error={errors.passwordError}
+                />
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  label="Choice 1"
+                  fullWidth
+                  name="choice1"
+                  value={inputs.choice1}
+                  onChange={changeHandler}
+                  error={errors.passwordError}
+                />
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  label="Choice 2"
+                  fullWidth
+                  name="choice2"
+                  value={inputs.choice2}
+                  onChange={changeHandler}
+                  error={errors.passwordError}
+                />
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  label="Choice 3"
+                  fullWidth
+                  name="choice3"
+                  value={inputs.choice3}
+                  onChange={changeHandler}
+                  error={errors.passwordError}
+                />
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  label="Choice 4"
+                  fullWidth
+                  name="choice4"
+                  value={inputs.choice4}
+                  onChange={changeHandler}
+                  error={errors.passwordError}
+                />
+              </MDBox>
+
+              <MDTypography variant="button" fontWeight="light">
+                Correct Choice :{" "}
+              </MDTypography>
+              <Select
+                style={{ width: "100%", height: "40px", textAlign: "start" }}
+                label=""
+                placeholder="hdsklfskfldkl"
+                labelId="correct"
+                id="correct"
+                value={inputs.correct_choice || "Select Status"}
+                onChange={(event) => {
+                  setInputs({
+                    ...inputs,
+                    correct_choice: event.target.value,
+                  });
+                }}
+                IconComponent={() => (
+                  <ArrowDropDownIcon style={{ marginRight: "10px" }} />
+                )}
+              >
+                <MenuItem value="1">Choice 1</MenuItem>
+                <MenuItem value="2">Choice 2</MenuItem>
+                <MenuItem value="3">Choice 3</MenuItem>
+                <MenuItem value="4">Choice 4</MenuItem>
+              </Select>
+              <MDBox mt={4} mb={1}>
+                {loading ? (
+                  <MDButton
+                    disabled
+                    variant="gradient"
+                    color="warning"
+                    fullWidth
+                  >
+                    Adding Question...
+                  </MDButton>
+                ) : (
+                  <MDButton
+                    variant="gradient"
+                    color="info"
+                    fullWidth
+                    type="submit"
+                  >
+                    Add Question
+                  </MDButton>
+                )}
+              </MDBox>
+              {credentialsErros && (
+                <MDTypography
+                  variant="caption"
+                  color="error"
+                  fontWeight="light"
+                >
+                  {credentialsErros}
+                </MDTypography>
+              )}
+            </MDBox>
+          </MDBox>
+        </Card>
+      </MDBox>
+    </Card>
+  );
+};
+
+export default AddQuestionsForm;
+
+{
+  /* <Select
+                                style={{ width: '100%', height: '40px', textAlign: "start" }}
+                                label=""
+                                labelId="test-status-label"
+                                id="test-status-select"
+                                value={inputs.testStatus || "Select Status"}
+                                onChange={(event) => {
+                                    setInputs({
+                                        ...inputs,
+                                        testStatus: event.target.value,
+                                    });
+                                }}
+                                disabled={inputs.testStatus === "Test Taken" || inputs.testStatus === "Evaluated"}
+                                IconComponent={() => <ArrowDropDownIcon style={{ marginRight: '10px' }} />}
+                            >
+                                {inputs.testStatus === "Test Not Taken" ? (
+                                    <MenuItem value="Test Cancelled">Cancel Test</MenuItem>
+                                ) : null}
+                                {inputs.testStatus === "Test Cancelled" ? (
+                                    <MenuItem value="Test Not Taken">Test Not Taken</MenuItem>
+                                ) : null}
+                                {inputs.testStatus === "Evaluated" ? (
+                                    <MenuItem value="Evaluated"> Evaluated</MenuItem>
+                                ) : null}
+                                {inputs.testStatus === "Test Taken" ? (
+                                    <MenuItem value="Test Taken"> Test Taken</MenuItem>
+                                ) : null}
+                                {inputs.testStatus && inputs.testStatus !== "Test Taken" && inputs.testStatus !== "Evaluated" ? (
+                                    <MenuItem value={inputs.testStatus}>{inputs.testStatus}</MenuItem>
+                                ) : null}
+                            </Select> */
+}
+
+{
+  /* <Row className="" >
+          <div style={{display: 'flex', justifyContent: 'start',marginTop: '50px'}}>
+            <button
+              className="btn"
+              onClick={handleProfileClick}
+              style={{ backgroundColor: "#6BD8BA", fontFamily: "fantasy", display: 'flex', justifyContent: 'start' }}
+            >
+              <i class="fa-solid fa-arrow-left-long"></i>
+            </button>
+          </div>
+        <Col lg="9">
+          <Form style={{ marginTop: "40px" }}>
+            <Form.Group controlId="questionTypeSelect">
+              <Form.Label style={{ fontFamily: "revert-layer", fontWeight: "bold" }}>
+                Please Select Your Question Type
+              </Form.Label>
+              <Form.Control
+                as="select"
+                className="form-select"
+                value={selectedQuestionType}
+                onChange={handleQuestionTypeChange}
+              >
+                //  <option value="">Select a question type</option> 
+                <option value="MCQ">MCQ</option>
+                <option value="">Other types coming soon</option>
+                <option value="TEXT">Paragraph</option>
+              </Form.Control>
+            </Form.Group>
+          </Form>
+          {selectedQuestionType === "TEXT" && <AddParagraphQuestionsForm />}
+          {selectedQuestionType === "MCQ" && <MCQForm />}
+        </Col>
+        
+      </Row> */
+}
