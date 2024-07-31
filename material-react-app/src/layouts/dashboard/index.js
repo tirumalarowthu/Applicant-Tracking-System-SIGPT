@@ -45,11 +45,7 @@ function Dashboard() {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/applicants/info`)
       setTestStatusInfo(response.data)
-      console.log(testStatusInfo["Test Taken"])
-      console.log(testStatusInfo["Test Taking"])
-      console.log(testStatusInfo["Test Not Taken"])
-      console.log(testStatusInfo["totalCount"])
-      console.log(testStatusInfo["Test Cancelled"])
+     
       // testStatusInfo.map(item => console.log(item))
     }
     catch (err) {
