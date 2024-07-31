@@ -71,6 +71,7 @@ export default function data() {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants/all`);
       // console.log(response.data.results, "results")
       console.log(response.data, "results") 
+      
         setLoading(false)
 
         const formatedTableData = response.data.map((item,index) => 
@@ -80,11 +81,7 @@ export default function data() {
                         {index+1}
                       </MDTypography>,
                 name: <Author image={team4} name={item.name} email={item.email} />,
-                // area: (
-                //   <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                //     {item.area}
-                //   </MDTypography>
-                // ),
+                role: <Role image={team4} role={item.role} experience={item.experience} />,
                 // area: (
                 //   item.area.map((area, index) => (
                 //     <MDTypography
@@ -99,21 +96,21 @@ export default function data() {
                 //     </MDTypography>
                 //   ))
                 // ),
+                // experience: (
+                //     <MDBox ml={-1}>
+                //       <MDTypography component="a"
+                //   href="#"
+                //   variant="caption"
+                //   color="text"
+                //   fontWeight="medium">{item.experience}</MDTypography>
+                //         {/* {item.testStatus === 'Evaluated' ? (
+                //             <MDBadge badgeContent={item.testStatus} color="" variant="gradient" size="sm" />
+                //         ) : (
+                //             <MDBadge badgeContent={item.testStatus} color="" variant="gradient" size="sm" />
+                //         )} */}
+                //     </MDBox>
+                // ),
                 status: (
-                    <MDBox ml={-1}>
-                      <MDTypography component="a"
-                  href="#"
-                  variant="caption"
-                  color="text"
-                  fontWeight="medium">{item.testStatus}</MDTypography>
-                        {/* {item.testStatus === 'Evaluated' ? (
-                            <MDBadge badgeContent={item.testStatus} color="" variant="gradient" size="sm" />
-                        ) : (
-                            <MDBadge badgeContent={item.testStatus} color="" variant="gradient" size="sm" />
-                        )} */}
-                    </MDBox>
-                ),
-                Marks: (
                   <MDTypography
                   component="a"
                   href="#"
@@ -121,13 +118,20 @@ export default function data() {
                   color="text"
                   fontWeight="medium"
                 >
-                  { item.testStatus === "Evaluated" || item.testStatus === "Test Taken" ? (
+                {item.status}
+                  {/* { item.testStatus === "Evaluated" || item.testStatus === "Test Taken" ? (
                     `${item.totalScore}/${item.totalQuestions}`
                   ) : (
                     ""
-                  )}
+                  )} */}
                 </MDTypography>
                 
+                ),
+                
+                source: (
+                  <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+                    {item.result}
+                  </MDTypography>
                 ),
                 action: (
                   <>
@@ -139,7 +143,7 @@ export default function data() {
                             ml={-1}>
                             
                             <Link to={{ pathname: `/Candidate-List/Edit/${item.email}`, state: { item }}}  >
-                                <MDBadge sx={{textDecoration: 'underline', color:'#FFFFFF'}}  badgeContent="Edit" color="info" variant="gradient" size="sm" />
+                                <MDBadge sx={{textDecoration: 'underline', color:'#FFFFFF'}}  badgeContent="Edit Status" color="info" variant="gradient" size="sm" />
                             </Link>
                         </MDBox>
                        
@@ -150,7 +154,7 @@ export default function data() {
                           style ={{cursor: "pointer"}} ml={0}>
                             {  item.testStatus === "Evaluated" ?
                               <MDBadge sx={{textDecoration: 'underline', color:'#FFFFFF'}} badgeContent={item.testStatus === "Evaluated" ?"Re-Evaluate":"Evaluate"} color={item.testStatus === "Evaluated" ?"primary" :"secondary"} variant="gradient" size="sm" /> :
-                              <MDBadge  sx={{textDecoration: item.testStatus === "Test Taken"?'underline':"", color:'#FFFFFF'}}  badgeContent={item.testStatus === "Test Not Taken" ?"Evaluate":"Evaluate"} disabled color={item.testStatus === "Test Not Taken" ?"warning" :"c"} variant="gradient" size="sm" /> 
+                              <MDBadge  sx={{textDecoration: item.testStatus === "Test Taken"?'underline':"", color:'#FFFFFF'}}  badgeContent="view" disabled color={item.testStatus === "Test Not Taken" ?"warning" :"c"} variant="gradient" size="sm" /> 
 
                             }
   
@@ -158,11 +162,6 @@ export default function data() {
                                                     
                     </MDTypography>
                   </>
-                ),
-                Result: (
-                  <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                    {item.result}
-                  </MDTypography>
                 )
               }
         }
@@ -189,6 +188,19 @@ export default function data() {
     </MDBox>
   );
 
+  const Role = ({ image, experience, role }) => (
+    
+    <MDBox display="flex" alignItems="center" lineHeight={1}>
+      {/* <MDAvatar src={image} name={name} size="sm" /> */}
+      <MDBox lineHeight={1}>
+        <MDTypography display="block" variant="button" fontWeight="medium">
+          {role}
+        </MDTypography>
+        <MDTypography variant="caption">{experience === 0 ? "Fresher": `${experience} years`}</MDTypography>
+      </MDBox>
+    </MDBox>
+  );
+
   
 //   console.log(candidateList)
   return {
@@ -196,14 +208,15 @@ export default function data() {
     columns: [
       { Header: "S.No", accessor: "s_no", align: "left", width: "10%" },
       { Header: "Name", accessor: "name", width: "25%", align: "left" },
-      { Header: "Area", accessor: "area", width: "", align: "left" },
+      { Header: "Role/experience", accessor: "role", width: "", align: "left" },
 
     //   { Header: "Email", accessor: "email", align: "left" },
-      { Header: "Status", accessor: "status", align: "left" },
+      // { Header: "Experience", accessor: "experience", align: "left" },
       // { Header: "Registered ", accessor: "registered_date", align: "center" },
+      { Header: "Status", accessor: "status", align: "center", align: "left" },
+      { Header: "Source", accessor: "source", align: "center" },
       { Header: "Action", accessor: "action", align: "left" },
-      { Header: "Marks", accessor: "Marks", align: "center" },
-      { Header: "Result", accessor: "Result", align: "center" },
+
     ],
 
     rows: candidateList,
