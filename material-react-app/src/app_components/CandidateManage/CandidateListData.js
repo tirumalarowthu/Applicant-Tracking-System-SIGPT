@@ -68,11 +68,12 @@ export default function data() {
   }, []);
   const getCandidateList = async () => {
     try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/get/candidates?filter=isApproved:true`);
-        // console.log(response.data.results) 
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants/all`);
+      // console.log(response.data.results, "results")
+      console.log(response.data, "results") 
         setLoading(false)
 
-        const formatedTableData = response.data.results.map((item,index) => 
+        const formatedTableData = response.data.map((item,index) => 
         { 
             return  {
                 s_no : <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
@@ -84,20 +85,20 @@ export default function data() {
                 //     {item.area}
                 //   </MDTypography>
                 // ),
-                area: (
-                  item.area.map((area, index) => (
-                    <MDTypography
-                      key={index} // Assign a unique key for each element
-                      component="a"
-                      href="#"
-                      variant="caption"
-                      color="text"
-                      fontWeight="medium"
-                    >
-                      {area} <br/>
-                    </MDTypography>
-                  ))
-                ),
+                // area: (
+                //   item.area.map((area, index) => (
+                //     <MDTypography
+                //       key={index} // Assign a unique key for each element
+                //       component="a"
+                //       href="#"
+                //       variant="caption"
+                //       color="text"
+                //       fontWeight="medium"
+                //     >
+                //       {area} <br/>
+                //     </MDTypography>
+                //   ))
+                // ),
                 status: (
                     <MDBox ml={-1}>
                       <MDTypography component="a"

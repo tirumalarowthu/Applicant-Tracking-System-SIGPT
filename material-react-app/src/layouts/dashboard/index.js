@@ -43,7 +43,7 @@ function Dashboard() {
   const [testStatusInfo, setTestStatusInfo] = useState({})
   const getData = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate/info`)
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/applicants/info`)
       setTestStatusInfo(response.data)
       console.log(testStatusInfo["Test Taken"])
       console.log(testStatusInfo["Test Taking"])
@@ -87,12 +87,12 @@ function Dashboard() {
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
-              <Link to="/Dashboard/Test_Not_Taken">
+              <Link to="/Dashboard/HR_Round">
                 <ComplexStatisticsCard
                   color="dark"
                   icon="assignment_late"
-                  title="Test Not Taken"
-                  count={testStatusInfo["Test Not Taken"] || 0}
+                  title="HR Round"
+                  count={testStatusInfo["HR Round"] || 0}
                   percentage={{
                     color: "success",
                     amount: "",
@@ -104,12 +104,12 @@ function Dashboard() {
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
-              <Link to="/Dashboard/Test_Taking">
+              <Link to="/Dashboard/Hiring_Manager">
                 <ComplexStatisticsCard
                   color="success"
                   icon="assignment_late"
-                  title="Test Taking"
-                  count={testStatusInfo["Test Taking"] || 0}
+                  title="Hiring Manager"
+                  count={testStatusInfo["Hiring Manager"] || 0}
                   percentage={{
                     color: "success",
                     amount: "",
@@ -121,11 +121,11 @@ function Dashboard() {
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
-              <Link to="/Dashboard/Test_Taken">
+              <Link to="/Dashboard/Online_Assessment_Test">
                 <ComplexStatisticsCard
                   icon="assignment_turned_in"
-                  title="Test Taken"
-                  count={testStatusInfo["Test Taken"] || 0}
+                  title="Online Assessment Test"
+                  count={testStatusInfo["Online Assessment Test"] || 0}
                   percentage={{
                     color: "success",
                     amount: "",
@@ -137,12 +137,12 @@ function Dashboard() {
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
-              <Link to="/Dashboard/Evaluated">
+              <Link to="/Dashboard/On_hold">
                 <ComplexStatisticsCard
                   color="success"
                   icon="check_circle"
-                  title="Evaluated"
-                  count={testStatusInfo["Evaluated"] || 0}
+                  title="On Hold"
+                  count={testStatusInfo["On hold"] || 0}
                   percentage={{
                     color: "success",
                     amount: "",
@@ -154,12 +154,29 @@ function Dashboard() {
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
-              <Link to="/Dashboard/Test_Cancelled">
+              <Link to="/Dashboard/Selected">
+                <ComplexStatisticsCard
+                  color="success"
+                  icon="check_circle"
+                  title="Selected"
+                  count={testStatusInfo["Selected"] || 0}
+                  percentage={{
+                    color: "success",
+                    amount: "",
+                    label: "Just updated",
+                  }}
+                />
+              </Link>
+            </MDBox>
+          </Grid>
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox mb={1.5}>
+              <Link to="/Dashboard/Rejected">
                 <ComplexStatisticsCard
                   color="primary"
                   icon="cancel"
-                  title="Cancelled"
-                  count={testStatusInfo["Test Cancelled"] || 0}
+                  title="Rejected"
+                  count={testStatusInfo["Rejected"] || 0}
                   percentage={{
                     color: "",
                     amount: "",

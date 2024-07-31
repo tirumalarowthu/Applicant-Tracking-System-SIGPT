@@ -71,31 +71,31 @@ export default function data() {
     try {
       // console.log(f_option_value)
 
-        const response = f_option_value === "Registered" ? await axios.get(`${process.env.REACT_APP_API_URL}/get/candidates`): await axios.get(`${process.env.REACT_APP_API_URL}/get/candidates?filter=testStatus:${f_option_value.replace(/_/g, " ")}`);
+      const response = f_option_value === "Registered" ? await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants/all`) : await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants/${f_option_value.replace(/_/g, " ")}`);
         setLoading(false)
         // console.log(updatedCandidates[1].totalScore)
 
-        const formatedTableData = response.data.results.map((item,index) => 
+        const formatedTableData = response.data.map((item,index) => 
         { 
           return  {
               s_no : <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
                       {index+1}
                     </MDTypography>,
               name: <Author image={team4} name={item.name} email={item.email} />,
-              area: (
-                item.area.map((area, index) => (
-                  <MDTypography
-                    key={index} // Assign a unique key for each element
-                    component="a"
-                    href="#"
-                    variant="caption"
-                    color="text"
-                    fontWeight="medium"
-                  >
-                    {area} <br/>
-                  </MDTypography>
-                ))
-              ),
+              // area: (
+              //   item.area.map((area, index) => (
+              //     <MDTypography
+              //       key={index} // Assign a unique key for each element
+              //       component="a"
+              //       href="#"
+              //       variant="caption"
+              //       color="text"
+              //       fontWeight="medium"
+              //     >
+              //       {area} <br/>
+              //     </MDTypography>
+              //   ))
+              // ),
               status: (
                   <MDBox ml={-1}>
                     <MDTypography component="a"
