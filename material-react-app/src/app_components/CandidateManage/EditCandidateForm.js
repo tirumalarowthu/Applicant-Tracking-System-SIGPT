@@ -171,7 +171,7 @@ function EditCandidateForm() {
 };
   return (
     <DashboardLayout>
-      {/* <DashboardNavbar /> */}
+      <DashboardNavbar />
       {/* <Divider/> */}
       {
         loading ? <MDBox align="center" variant="h6" mb={2} ml={4} mt={3}>
@@ -268,7 +268,7 @@ function EditCandidateForm() {
                   <MDBox>
                     <MDTypography >Selected areas for the Online Assessment </MDTypography>
                     <MDBox style={{display:'flex',flexWrap:"wrap"}}>
-                      {candidate_areas.map((item) => (
+                      {/* {candidate_areas.map((item) => (
                         <FormControlLabel
                           style={{width:"48%"}}
                           key={item.areaOption}
@@ -282,7 +282,7 @@ function EditCandidateForm() {
                           }
                           label={<span style={{ fontSize:"12px",fontWeight:"400" }}>{item.areaOption}</span>}
                         />
-                      ))}
+                      ))} */}
                     </MDBox>
                   </MDBox>
 
