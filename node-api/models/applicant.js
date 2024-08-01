@@ -74,7 +74,7 @@ const applicantSchema = mongoose.Schema({
     sourceOfProfile: {
         type:String,
         trim:true,
-        default:"Noukari"
+        default:"Naukri"
     },
     comments: [{
         commentBy: String,
