@@ -66,7 +66,8 @@ import EvalQuestions from "app_components/CandidateManage/EvalQuestions";
 
 import AddQuestions from "app_components/QuestionBank/AddQuestions";
 import AddQuestionsHomepage from "app_components/QuestionBank/AddQuestionsHomepage";
-import AddCandidate from "app_components/CandidateManage/AddCandidate";
+// import AddCandidate from "app_components/CandidateManage/AddCandidate";
+import AddApplicant from "app_components/CandidateManage/AddApplicant";
 import FilterTable from "app_components/FilterTables/FilterTable";
 import Help from "Help";
 
@@ -103,7 +104,7 @@ const routes = [
     key: "add-candidate",
     icon: <Icon fontSize="small">person</Icon>,
     route: "/add-candidate",
-    component: <AddCandidate />,
+    component: <AddApplicant />,
   },
  
   
