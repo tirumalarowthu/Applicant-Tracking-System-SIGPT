@@ -130,7 +130,7 @@ export default function data() {
                 
                 source: (
                   <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                    {item.result}
+                    {item.sourceOfProfile}
                   </MDTypography>
                 ),
                 action: (
