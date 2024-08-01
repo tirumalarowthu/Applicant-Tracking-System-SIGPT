@@ -146,6 +146,8 @@ function EditCandidateForm() {
                 alert("Unable to change applicant status now!Try after some time.")
             }
 
+        } else {
+            toast.error("Please provide all the inputs!")
         }
         setLoading(false)
     }
@@ -158,11 +160,11 @@ function EditCandidateForm() {
     const validForm = () => {
         let isValid = true
         let errors = {}
-        if (postData.status === applicantdetails.status || postData.status.trim() === "") {
+        if (postData.status === applicantdetails.status || postData.status === "") {
             errors["status"] = "Please update the status of the applicant."
             isValid = false
         }
-        if (!postData.comment || postData.comment.trim() === "") {
+        if (!postData.comment || postData.comment === "") {
             errors["comment"] = "Please write comments for the applicant."
             isValid = false
         }
@@ -175,6 +177,7 @@ function EditCandidateForm() {
             isValid = false
         }
         setErrors(errors)
+       
         return isValid;
     }
     ///To hide the errors .
