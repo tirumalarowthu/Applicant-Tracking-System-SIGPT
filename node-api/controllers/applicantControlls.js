@@ -187,6 +187,7 @@ const ApplicantById = asyncHandler(async (req, res) => {
 //update the applicant like next round,comments,status
 const ApplicantNextProcess = asyncHandler(async (req, res) => {
     const { email, comment, commentBy, cRound, nextRound, status } = req.body
+    console.log(req.body,"comments.....")
     if (email !== "" && comment !== "" && commentBy !== "" && cRound !== "" && nextRound !== "" && status !== "") {
         const updatedApplicant = await Applicant.findOneAndUpdate({ email: email }, {
             nextRound: nextRound,

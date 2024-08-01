@@ -26,7 +26,7 @@ import GoogleIcon from "@mui/icons-material/Google";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
 import { Table, Button, Modal, Form } from "react-bootstrap";
-import { Select, MenuItem, InputLabel, FormControl, Divider, FormControlLabel, Checkbox } from '@mui/material';
+import { Select, MenuItem, InputLabel, FormControl, MDBoxider, FormControlLabel, Checkbox } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { candidate_areas } from "./CandidateAreas";
 
@@ -55,8 +55,8 @@ function EditCandidateForm() {
   // const [candidateList, setCandidateList] = useState([]);
   // const [candidateItem, setCandidateItem] = useState({})
   const [inputs, setInputs] = useState({});
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  // const navigate = useNavigate();
+  // const [loading, setLoading] = useState(true);
 
 
   useEffect(() => {
@@ -64,6 +64,7 @@ function EditCandidateForm() {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/singleApplicant/${email}`);
         // console.log('Response:', response.data);
+        setApplicantdetails(response.data)
         setInputs(response.data)
         setLoading(false)
         // setCandidateList(response.data);
@@ -75,6 +76,111 @@ function EditCandidateForm() {
 
     fetchData();
   }, []);
+
+
+  const changeDoneBy = JSON.parse(localStorage.getItem("eval_info")).name
+    const role=JSON.parse(localStorage.getItem("eval_info")).role
+    const statusOpt =role === "Hiring Manager"? ["HR Round", "Hiring Manager","Online Assessment Test", "Technical Round", "Rejected", "On hold", "Selected"]:role==="HR" ?["HR Round", "Hiring Manager",,"Online Assessment Test","Rejected", "On hold", "Selected"]:["HR Round", "Hiring Manager", "Technical Round"]
+    const owners =["Veera(HM)", "Areesh(HR)"]
+    const navigate = useNavigate()
+    // const [errors, setErrors] = useState({})
+    const [loading, setLoading] = useState(false);
+    // const dispatch = useDispatch()
+    const [applicantdetails, setApplicantdetails] = useState({})
+    const [postData, setPostData] = useState({
+        email: applicantdetails.email,
+        commentBy: changeDoneBy,
+        comment: "",
+        status: applicantdetails.status,
+        cRound: applicantdetails.status,
+        nextRound: ""
+    })
+    // console.log(applicantdetails)
+    const handleUpdateApplicantStatus = async (e) => {
+        e.preventDefault()
+        setLoading(true)
+        validForm()
+        postData.email =applicantdetails.email
+        postData.cRound =applicantdetails.status
+        console.log(postData,"post data")
+        if (validForm() === true) {
+            const config = { headers: { "Content-Type": "Application/json" } }
+            try {
+                if (postData.status === "Selected") {
+                    postData.comment=postData.comment+` .To proceed with offer letter : <a href="${window.location.origin}/offerletter/${applicantdetails._id}">Click Here</a>`
+                    await axios.put(`${process.env.REACT_APP_API_URL}/appicant/update/comments`, postData, config)
+                }else{
+                  console.log(postData,"data")
+                    await axios.put(`${process.env.REACT_APP_API_URL}/appicant/update/comments`, postData, config)
+                }
+                try {
+                    toast.success(`${applicantdetails.name} status updated successfully`)
+                    // dispatch(fetchApplicants())
+                    await axios.post(`${process.env.REACT_APP_API_URL}/change/${postData.commentBy}/${postData.nextRound}/${applicantdetails.name}`)
+                    alert(`Email send to ${postData.nextRound} successfully`)
+                    if (postData.status === "Online Assessment Test") {
+                        try {
+
+                            //Register for online test in Test evaluation system
+                            await axios.post(`${TES_URL}/register`, { name: applicantdetails.name, email: applicantdetails.email, area: applicantdetails.area, atsId: applicantdetails._id })
+                                .then((res) => console.log(res))
+                                .catch(err => console.log(err.message))
+                            //Send mail to the applicant for online
+                            await axios.post(`${process.env.REACT_APP_API_URL}/send/${applicantdetails.name}/${applicantdetails.email}`)
+                            alert(`Online Assessment Test link sent to ${applicantdetails.name} successfully.`)
+                        }
+                        catch (err) {
+                            alert(`Failed to send test link to ${applicantdetails.name}.`)
+                            console.log(err.message)
+                        }
+                    }
+
+                    navigate("/")
+                } catch (err) {
+                    alert("Failed to send email.")
+                    navigate("/")
+                    setLoading(false)
+                }
+            } catch (err) {
+                console.log(err)
+                alert("Unable to change applicant status now!Try after some time.")
+            }
+
+        }
+        setLoading(false)
+    }
+    //Handling input Change 
+    const handleInputChange = (e) => {
+        const { name, value } = e.target
+        setPostData({ ...postData, [name]: value })
+    }
+    //validations for the form
+    const validForm = () => {
+        let isValid = true
+        let errors = {}
+        if (postData.status === applicantdetails.status || postData.status.trim() === "") {
+            errors["status"] = "Please update the status of the applicant."
+            isValid = false
+        }
+        if (!postData.comment || postData.comment.trim() === "") {
+            errors["comment"] = "Please write comments for the applicant."
+            isValid = false
+        }
+        if (!postData.commentBy || postData.commentBy === "") {
+            errors["commentBy"] = "Please choose commented one."
+            isValid = false
+        }
+        if (!postData.nextRound) {
+            errors["nextRound"] = "Please choose next round owner."
+            isValid = false
+        }
+        setErrors(errors)
+        return isValid;
+    }
+    ///To hide the errors .
+    const hideErrors = (e) => {
+        setErrors({ ...errors, [e.target.name]: "" })
+    }
 
   // useEffect(() => {
   //     const candidate = candidateList.find(candidate => candidate._id === _id);
@@ -172,7 +278,7 @@ function EditCandidateForm() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      {/* <Divider/> */}
+      {/* <MDBoxider/> */}
       {
         loading ? <MDBox align="center" variant="h6" mb={2} ml={4} mt={3}>
           <CircularProgress color='black' size={30} mt={3} /></MDBox> : <Grid container spacing={6}>
@@ -195,7 +301,7 @@ function EditCandidateForm() {
 
               </MDBox>
               <MDBox pt={1} pb={3} px={3} >
-                <MDBox component="form" role="form" method="POST" onSubmit={handleEditForm}>
+                <MDBox component="form" role="form" method="POST" onSubmit={handleUpdateApplicantStatus}>
                   <MDBox mb={1} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
                     <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
                       Name
@@ -203,7 +309,7 @@ function EditCandidateForm() {
                     <MDInput
                       type="text"
                       fullWidth
-                      value={inputs.name}
+                      value={applicantdetails.name}
                       id="nameInput"
                       name="name"
                       onChange={changeHandler}
@@ -219,7 +325,7 @@ function EditCandidateForm() {
                       type="email"
                       label=""
                       fullWidth
-                      value={inputs.email}
+                      value={applicantdetails.email}
                       name="email"
                       onChange={changeHandler}
                       error={errors.emailError}
@@ -227,7 +333,7 @@ function EditCandidateForm() {
                         inputs.testStatus === "Evaluated" || inputs.testStatus === "Test Taken"}
                     />
                   </MDBox>
-                  <FormControl sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
+                  {/* <FormControl sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
                     <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
                       Test Status
                     </MDTypography>
@@ -247,7 +353,7 @@ function EditCandidateForm() {
                       IconComponent={() => <ArrowDropDownIcon style={{ marginRight: '10px' }} />}
                     >
                       {/* <MenuItem value="">Select Status</MenuItem> */}
-                      {inputs.testStatus === "Test Not Taken" ? (
+                      {/* {inputs.testStatus === "Test Not Taken" ? (
                         <MenuItem value="Test Cancelled">Cancel Test</MenuItem>
                       ) : null}
                       {inputs.testStatus === "Test Cancelled" ? (
@@ -263,9 +369,9 @@ function EditCandidateForm() {
                         <MenuItem value={inputs.testStatus}>{inputs.testStatus}</MenuItem>
                       ) : null}
                     </Select>
-                  </FormControl>
+                  </FormControl> */} 
 
-                  <MDBox>
+                  {/* <MDBox>
                     <MDTypography >Selected areas for the Online Assessment </MDTypography>
                     <MDBox style={{display:'flex',flexWrap:"wrap"}}>
                       {/* {candidate_areas.map((item) => (
@@ -283,9 +389,114 @@ function EditCandidateForm() {
                           label={<span style={{ fontSize:"12px",fontWeight:"400" }}>{item.areaOption}</span>}
                         />
                       ))} */}
-                    </MDBox>
+                    {/* </MDBox> */}
+                  {/* </MDBox> */}
+                
+            <MDBox>
+                {/* <form className='border border-2 p-2 rounded bg-light' onSubmit={handleUpdateApplicantStatus}> */}
+                <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
+                    <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
+                    Change Done By:
+                    </MDTypography>
+                    <MDInput className='form-control' fullWidth name='commentBy' readOnly onChange={handleInputChange} value={changeDoneBy} onFocus={hideErrors} type="text"/>
+                    {errors.commentBy ? <p className='text-danger'>{errors.commentBy}</p> : null}
+                  </MDBox>
+                  <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
+                    <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
+                    Current Status:
+                    </MDTypography>
+                    <MDInput className='form-control' fullWidth name='cRound' value={applicantdetails.status} readOnly onChange={handleInputChange} type="text" />
+                  </MDBox>
+                  <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
+                    <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
+                    New Status:
+                    </MDTypography>
+
+                    <Select
+                      style={{ width: '100%', height: '40px', textAlign: "start" }}
+                      label=""
+                      labelId="test-status-label"
+                      id="test-status-select"
+                      value={postData.status || "Select Status"}
+                      onChange={handleInputChange}
+                      name="status"
+                      // disabled={inputs.testStatus === "Test Taken" || inputs.testStatus === "Evaluated"}
+                      IconComponent={() => <ArrowDropDownIcon style={{ marginRight: '10px' }} />}
+                    >
+                      <MenuItem value="">Select Status</MenuItem>
+                      {statusOpt && statusOpt.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                    </Select>
+                    
+                    {/* <MDInput className='form-control' name='cRound' value={applicantdetails.status} readOnly onChange={handleInputChange} type="text" /> */}
+                  </MDBox>
+                  <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
+                    <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
+                    New Owner:
+                    </MDTypography>
+
+                    <Select
+                      style={{ width: '100%', height: '40px', textAlign: "start" }}
+                      label=""
+                      labelId="test-status-label"
+                      id="test-status-select"
+                      value={postData.nextRound || "Select Status"}
+                      onChange={handleInputChange}
+                      name="nextRound"
+                      disabled={inputs.testStatus === "Test Taken" || inputs.testStatus === "Evaluated"}
+                      IconComponent={() => <ArrowDropDownIcon style={{ marginRight: '10px' }} />}
+                    >
+                      <MenuItem value="">Select Status</MenuItem>
+                      {owners&& owners.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                    </Select>
+                    
+                    {/* <MDInput className='form-control' name='cRound' value={applicantdetails.status} readOnly onChange={handleInputChange} type="text" /> */}
                   </MDBox>
 
+
+                    {/* <MDBox className="mb-3 row">
+                        <label className="col-sm-3 col-form-label">New Status:</label>
+                        <MDBox className="col-sm-9">
+                            <select className='form-select' onChange={handleInputChange} onFocus={hideErrors} name="status">
+                                <option value="">---Choose new status---</option>
+                                {statusOpt && statusOpt.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                            {errors.status ? <p className='text-danger'>{errors.status}</p> : null}
+                        </MDBox>
+                    </MDBox> */}
+                    {/* <MDBox className="mb-3 row">
+                        <label className="col-sm-3 col-form-label">New Owner:</label>
+                        <MDBox className="col-sm-9">
+                            <select className='form-select' value={postData.nextRound} onChange={handleInputChange} onFocus={hideErrors} name="nextRound">
+                                <option >--Choose new owner--</option>
+                                {owners && owners.map(o => <option key={o} value={o}>{o}</option>)}
+                            </select>
+                            {errors.nextRound ? <p className='text-danger'>{errors.nextRound}</p> : null}
+                        </MDBox>
+                    </MDBox> */}
+                    <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
+                    <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
+                      Comments:
+                    </MDTypography>
+                    <MDInput className='form-control' fullWidth name="comment" value={postData.comment} onFocus={hideErrors} onChange={handleInputChange} type="text" />
+                            {errors.comment ? <p className='text-danger'>{errors.comment}</p> : null}
+                  </MDBox>
+                    {/* <MDBox className="mb-3 row">
+                        <label className="col-sm-3 col-form-label">Comments:</label>
+                        <MDBox className="col-sm-9">
+                            <input className='form-control' name="comment" value={postData.comment} onFocus={hideErrors} onChange={handleInputChange} type="text" />
+                            {errors.comment ? <p className='text-danger'>{errors.comment}</p> : null}
+                        </MDBox>
+                    </MDBox> */}
+                    {/* <MDBox>
+                        {
+                            loading ? <button className="btn btn-info" type="button" disabled>
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Change status... </button>
+                                : <button type="submit" className="btn btn-primary" disabled={loading}>Change Status</button>
+                        }
+                    </MDBox> */}
+                {/* </form> */}
+            </MDBox>
+        
 
                   <MDBox mt={4} mb={1}>
                     <MDButton
@@ -307,7 +518,9 @@ function EditCandidateForm() {
                   </MDBox>
 
                 </MDBox>
-              </MDBox>
+
+                </MDBox>
+              {/* </MDBox> */}
             </Card>
           </Grid>
         </Grid>}
