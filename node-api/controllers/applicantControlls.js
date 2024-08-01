@@ -68,7 +68,8 @@ const addApplicant = asyncHandler(async (req, res) => {
 //Get the all Applicant details
 const ApplicantList = asyncHandler(async (req, res) => {
     try {
-        const allApplicants = await Applicant.find({}).sort({ updatedAt: -1 })
+        console.log(req.params)
+        const allApplicants = req.params.status !=='all' ? await Applicant.find({status:req.params.status}).sort({ updatedAt: -1 }) : await Applicant.find({}).sort({ updatedAt: -1 })
         if (allApplicants.length > 0) {
             res.status(200).json(allApplicants)
         } else {
@@ -78,7 +79,84 @@ const ApplicantList = asyncHandler(async (req, res) => {
     catch (err) {
         console.log(err.message)
     }
+
 })
+
+// get count by status : 
+const ApplicantsInfoByStatus = asyncHandler(async (req, res) => {
+    try {
+        const data = await Applicant.aggregate([
+            {
+                $facet: {
+                    testStatusCounts: [
+                        { $group: { _id: "$status", count: { $sum: 1 } } },
+                        {
+                            $group: {
+                                _id: null,
+                                data: { $push: { k: "$_id", v: "$count" } },
+                            },
+                        },
+                    ],
+                    isApprovedCounts: [
+                        { $group: { _id: "$isApproved", count: { $sum: 1 } } },
+                        {
+                            $group: {
+                                _id: null,
+                                data: {
+                                    $push: {
+                                        k: {
+                                            $cond: {
+                                                if: { $eq: ["$_id", true] },
+                                                then: "isApproved",
+                                                else: "isNotApproved",
+                                            },
+                                        },
+                                        v: "$count",
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                    totalCount: [{ $count: "total" }],
+                },
+            },
+            {
+                $project: {
+                    testStatusCounts: {
+                        $arrayToObject: {
+                            $ifNull: [{ $arrayElemAt: ["$testStatusCounts.data", 0] }, []],
+                        },
+                    },
+                    isApprovedCounts: {
+                        $arrayToObject: {
+                            $ifNull: [{ $arrayElemAt: ["$isApprovedCounts.data", 0] }, []],
+                        },
+                    },
+                    totalCount: { $arrayElemAt: ["$totalCount.total", 0] },
+                },
+            },
+        ]);
+        console.log(data,"data")
+
+        // Extract the counts and format the response
+        const formattedData = {
+            ...data[0].testStatusCounts,
+            ...data[0].isApprovedCounts,
+            totalCount: data[0].totalCount,
+        };
+
+        // Send the response
+        res.json(formattedData);
+    }
+    catch (err) {
+        res.status(500).json({msg:err.message})
+        console.log(err.message)
+    }
+})
+
+
+
+
 
 //Get the one Applicant details
 const SingleApplicant = asyncHandler(async (req, res) => {
@@ -181,4 +259,4 @@ const deteleApplicant = asyncHandler(async (req, res) => {
 
 
 
-module.exports = { addApplicant, ApplicantList, SingleApplicant, ApplicantById, ApplicantNextProcess, updateComment, emailSearch, deteleApplicant }
+module.exports = { addApplicant, ApplicantsInfoByStatus, ApplicantList, SingleApplicant, ApplicantById, ApplicantNextProcess, updateComment, emailSearch, deteleApplicant }

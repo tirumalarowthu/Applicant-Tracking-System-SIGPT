@@ -14,6 +14,8 @@ import {
   Radio,
   Divider,
 } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -33,399 +35,194 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 // import { store } from "./App";
 
 function EvalQuestions() {
-  const navigate = useNavigate();
-  const { email } = useParams();
-  const [testResults, setTestResults] = useState([]);
-  const [mcqQuestions, setMCQQuestions] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [candidate, setCandidate] = useState({});
-  const [testSubmitReason,setTestSubmitReason]  = useState("")
-  const [loading, setLoading] = useState(true);
-  let mcqScore = 0;
-  let correctAnswers = 0;
-  let wrongAnswers = 0;
-  const getCandidateInfo = async() =>{
-    await axios.get(`${process.env.REACT_APP_API_URL}/eval/candidate/${email}`)
-    .then(response => {
-      setCandidate(response.data.name);
-      setTestSubmitReason(response.data.reason)
-      setTestResults(response.data.result);
-      const totalQuestions = Object.keys(response.data.info).length;
-      setTotal(totalQuestions);
-      const questionsWithImage = response.data.info.map(question => {
-        if (question.image && question.image.data) {
-           // Convert the array of numbers into a Uint8Array
-           const byteArray = new Uint8Array(question.image.data.data);
-        
-           // Convert the Uint8Array into a binary string
-           const binaryString = byteArray.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
-   
-           // Encode the binary string to base64
-           const base64String = btoa(binaryString);
-   
-           // Assign the base64 string to the imageURL property
-           question.imageURL = `data:${question.image.contentType};base64,${base64String}`;
-        }
-        question.question = DOMPurify.sanitize(question.question);
-        return question;
-      });
-      setMCQQuestions(questionsWithImage);
-      setLoading(false)
-      // console.log(candidate)
-      setLoading(false)
-    })
-    .catch(error => {
-      console.log(error);
-    });
-  }
+
+  const [appData, setAppData] = useState({})
+  const navigator = useNavigate()
+  const { email } = useParams()
   useEffect(() => {
-    setLoading(true)
-    getCandidateInfo()
-
-  }, []);
-
-  async function updateCandidateResult(result, email) {
-    console.log(result, email);
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/updateTestResult/${email.email}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            result,
-            mcqScore,
-          }),
-        }
-      );
-      console.log(response);
-      const data = await response.json();
-
-      if (!response.status === 200) {
-        toast.warn(data.message || "Failed to update candidate result.", {
-          style: {
-            fontSize: "18px",
-          },
-        });
-      } else {
-        console.log(data)
-        toast.success(`${email.email}'s result has been updated to "${result}" successfully.`, {
-          style: {
-            fontSize: "16px",
-          },
-          autoClose:5000,
-          onClose: () => {
-            window.location.reload();
-          },
-        });
-      }
-
-      // return data;
-    } catch (error) {
-      console.error(error);
-      throw error;
+    axios.get(`${process.env.REACT_APP_API_URL}/singleApplicant/${email}`).then(res => {
+      console.log(res.data)
+      setAppData(res.data)
     }
+    ).catch(err => console.log(err.message))
+  }, [email])
+  ///delete Applicant 
+  const deleteApplicant = async () => {
+    await axios.delete(`${baseUrl}/applicant/delete/${appData._id}`)
+      .then(res => {
+        alert(`Applicant ${appData.name} deleted successfully`)
+        navigator("/")
+        dispatch(fetchApplicants())
+      })
+      .catch(err => alert("Unable to delete applicant.Please try after some time."))
   }
-
-  ///// Update the test result to Applicant Tracking System
-  const generateResultColor = (final_result) => {
-    if (final_result === "Pass") {
-      return "success";
-    } else if (final_result === "Fail") {
-      return "error";
-    } else {
-      return "warning";
-    }
-  };
-console.log(testSubmitReason)
-  return (
-    <DashboardLayout>
-      <DashboardNavbar />
-      <MDBox pt={6} pb={3}>
-        {loading ? (
-          <MDBox align="center" variant="h6" mb={2} ml={4} mt={3}>
-            <CircularProgress color="black" size={30} mt={3} />
-          </MDBox>
-        ) : (
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <Card>
-                <MDBox
-                  mx={2}
-                  mt={-3}
-                  py={3}
-                  px={2}
-                  variant="gradient"
-                  bgColor="info"
-                  borderRadius="lg"
-                  coloredShadow="info"
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <MDTypography variant="h6" color="white">
-                    Test Evaluation
-                  </MDTypography>
-                </MDBox>
-                {
-                  testSubmitReason !== "" && <MDBox>
-                  <MDTypography variant="h6" style={{color:"red",textAlign:'center',marginTop:"20px"}}> {testSubmitReason}</MDTypography>
-                </MDBox>
-                }
-                
-                <MDBox pt={3} pl={4}>
-                  <ol
-                    style={{
-                      paddingLeft: "30px",
-                      marginTop: "10px",
-                      fontSize: "16px",
-                    }}
-                  >
-                    {mcqQuestions.map((question, index) => {
-                      const selectedAnswer = question.candidateAnswer;
-                      const isCorrect =
-                        selectedAnswer === question.correct_choice;
-                      const notAnswered = question.candidateAnswer;
-                      // console.log(notAnswered, 'from selected ans')
-                      if (isCorrect) {
-                        mcqScore++;
-                        correctAnswers++;
-                      } else {
-                        wrongAnswers++;
-                      }
-                      return (
-                        // <li key={question._id} style={{ marginBottom: "30px" }}>
-                        <MDBox>
-                          
-                          <MDBox className="card-body">
-                            <MDTypography variant="h6" fontWeight="medium" mt={1} mb={1} style={{whiteSpace: "pre-wrap"}}>
-                              {index + 1}.  
-                              {question.question.split('\n').map((line, index) => (
-                              <span key={index}>
-                                {line}
-                                <br />
-                              </span>
-                            ))}
-                            </MDTypography>
-
-                            {question.imageURL && (
-                              <MDBox className="card-body">
-                                <img src={question.imageURL} alt="Question Image" style={{ width: '50%' }} />
-                              </MDBox>
-                            )}
-                            <MDTypography
-                              variant="h6"
-                              style={{
-                                marginBottom: "10px",
-                                paddingLeft: "20pxx",
-                              }}
-                            >
-                              Correct answer: {question.correct_choice}
-                            </MDTypography>
-                            <RadioGroup
-                              name={question._id}
-                              value={question.candidateAnswer}
-                              defaultValue={question.candidateAnswer}
-                              // onChange={(e) => handleRadioChange(e, question._id)}
-                            >
-                              <FormControlLabel
-                                disabled
-                                value={1}
-                                control={<Radio />}
-                                label={
-                                  <MDTypography
-                                    variant="body2"
-                                    sx={{ fontSize: "14px", color: "text" }}
-                                  >
-                                    {question.choice1}
-                                  </MDTypography>
-                                }
-                              />
-                              <FormControlLabel
-                                disabled
-                                value={2}
-                                control={<Radio />}
-                                label={
-                                  <MDTypography
-                                    variant="body2"
-                                    sx={{ fontSize: "14px", color: "text" }}
-                                  >
-                                    {question.choice2}
-                                  </MDTypography>
-                                }
-                              />
-                              <FormControlLabel
-                                disabled
-                                value={3}
-                                control={<Radio />}
-                                label={
-                                  <MDTypography
-                                    variant="body2"
-                                    sx={{ fontSize: "14px", color: "text" }}
-                                  >
-                                    {question.choice3}
-                                  </MDTypography>
-                                }
-                              />
-                              <FormControlLabel
-                                disabled
-                                value={4}
-                                control={<Radio />}
-                                label={
-                                  <MDTypography
-                                    variant="body2"
-                                    sx={{ fontSize: "14px", color: "text" }}
-                                  >
-                                    {question.choice4}
-                                  </MDTypography>
-                                }
-                              />
-                            </RadioGroup>
-
-                            <MDBox
-                              id={`symbol-${question._id}`}
-                              className="symbol"
-                            >
-                              {notAnswered !== "" ? (
-                                isCorrect ? (
-                                  <MDTypography
-                                    style={{
-                                      color: "#28a745",
-                                      fontWeight: "bold",
-                                      marginRight: "5px",
-                                      fontSize: "15px",
-                                    }}
-                                  >
-                                    &#10004; Correct
-                                  </MDTypography>
-                                ) : (
-                                  <MDTypography
-                                    style={{
-                                      color: "#dc3545",
-                                      fontWeight: "bold",
-                                      marginRight: "5px",
-                                      fontSize: "15px",
-                                    }}
-                                  >
-                                    &#10008; Wrong
-                                  </MDTypography>
-                                )
-                              ) : (
-                                <MDTypography
-                                  style={{
-                                    color: "#e08e36",
-                                    fontWeight: "bold",
-                                    marginRight: "5px",
-                                    fontSize: "15px",
-                                  }}
-                                >
-                                  &#8709; Not Answered
-                                </MDTypography>
-                              )}
-                            </MDBox>
-                          </MDBox>
-                        </MDBox>
-                        // </li>
-                      );
-                    })}
-                    <MDBox
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-around",
-                        marginTop: "30px",
-                      }}
-                    >
-                      <MDTypography>
-                        Correct Answers: {correctAnswers}
-                      </MDTypography>
-                      <MDTypography>Wrong Answers: {wrongAnswers}</MDTypography>
-                      <MDTypography>
-                        Score: {mcqScore} / {total}
-                      </MDTypography>
-                    </MDBox>
-                  </ol>
-                  <center>
-                    <Divider />
-
-                    {/* working */}
+ 
+  return     (
+      <DashboardLayout>
+        <DashboardNavbar />
+        {Object.keys(appData).length > 0 && (
+          <Card className="mb-4 container">
+            <MDBox p={3}>
+              <MDTypography variant="h4" align="center">
+                Full details of the Applicant
+              </MDTypography>
+              <Divider/>
+              <MDBox mt={2}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6}>
                     <MDBox>
-                      {testResults === "" ? (
-                        <MDBox>
-                          <MDTypography variant="h5">
-                            Evaluate the candidate :
-                          </MDTypography>
-                          <MDButton
-                            variant="contained"
-                            style={{
-                              marginRight: "10px",
-                              marginTop: "30px",
-                              marginBottom: "30px",
-                              marginTop: "10px",
-                            }}
-                            color="success"
-                            onClick={() => {
-                              updateCandidateResult("Pass", { email });
-                            }}
-                          >
-                            Pass
-                          </MDButton>
-                          <MDButton
-                            variant="contained"
-                            style={{
-                              marginRight: "10px",
-                              marginTop: "30px",
-                              marginBottom: "30px",
-                              marginTop: "10px",
-                            }}
-                            color="warning"
-                            onClick={() => {
-                              updateCandidateResult("On Hold", { email });
-                            }}
-                          >
-                            On Hold
-                          </MDButton>
-                          <MDButton
-                            variant="contained"
-                            style={{
-                              marginRight: "10px",
-                              marginTop: "30px",
-                              marginBottom: "30px",
-                              marginTop: "10px",
-                            }}
-                            color="error"
-                            onClick={() => {
-                              updateCandidateResult("Fail", { email });
-                            }}
-                          >
-                            Fail
-                          </MDButton>
-                        </MDBox>
-                      ) : (
-                        <MDBox style={{ marginBottom: "20px" }}>
-                          {/* <MDTypography variant="h5" sx={{ marginBottom:'10px'}}>Result of the Candidate : </MDTypography> */}
-                          <MDButton
-                            variant="contained"
-                            color={generateResultColor(testResults)}
-                          >
-                            Result of the Candidate : {testResults}
-                          </MDButton>
-                          <ChangeResultModel result={testResults} />
-                        </MDBox>
-                      )}
+                      <MDTypography variant="h6">Name of the Applicant</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.name}</MDTypography>
                     </MDBox>
-                  </center>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">Email</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.email}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">Mobile Number</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.mobile}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">Applied Role</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.role}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">Area for Online Assessment Test</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.area}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">College Name</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.collegeName}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">Qualification</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.qualification}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">Branch</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.branch}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">Passout Year</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.passout}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  {appData.experience > 0 && (
+                    <>
+                      <Grid item xs={12} sm={6}>
+                        <MDBox>
+                          <MDTypography variant="h6">Previous Company Name</MDTypography>
+                          <MDTypography variant="body1" readOnly>{appData.previousCompany}</MDTypography>
+                        </MDBox>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <MDBox>
+                          <MDTypography variant="h6">Experience in Years</MDTypography>
+                          <MDTypography variant="body1" readOnly>{appData.experience}</MDTypography>
+                        </MDBox>
+                      </Grid>
+                    </>
+                  )}
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">Next Round Owner</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.nextRound}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">Status of the applicant</MDTypography>
+                      <MDTypography variant="body1" readOnly>{appData.status}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <MDBox>
+                      <MDTypography variant="h6">Applied Date</MDTypography>
+                      <MDTypography variant="body1" readOnly>{new Date(appData.createdAt).toString().substring(0, 25)}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                  <MDBox>
+                    <MDTypography variant="h6">Resume Link</MDTypography>
+                    <MDButton variant="outlined" color="primary" onClick={() => window.open(appData.resumeLink)}>
+                      Open Resume
+                    </MDButton>
+                  </MDBox>
+                  </Grid>
+                </Grid>
+              </MDBox>
+              {appData.comments.length > 0 && (
+                <MDBox mt={3}>
+                  <Card>
+                    <MDBox p={2}>
+                      <MDTypography variant="h6" align="center" className="bg-info text-white">
+                        Comments
+                      </MDTypography>
+                      <MDBox mt={2}>
+                        <Grid container spacing={3}>
+                          <Grid item xs={12}>
+                          <TableContainer component={Paper} className="my-12">
+                            <Table>
+                              <TableHead className="bg-info">
+                                <TableRow>
+                                  <TableCell>#</TableCell>
+                                  <TableCell>Round</TableCell>
+                                  <TableCell>Updated By</TableCell>
+                                  <TableCell>Updated At</TableCell>
+                                  <TableCell>Comments</TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {appData.comments.map((item, index) => (
+                                  <TableRow key={index} hover>
+                                    <TableCell>{index + 1}</TableCell>
+                                    <TableCell>{item.cRound}</TableCell>
+                                    <TableCell>{item.commentBy}</TableCell>
+                                    <TableCell>{new Date(item.Date).toString().substring(0, 25)}</TableCell>
+                                    <TableCell>
+                                      <div dangerouslySetInnerHTML={{ __html: item.comment }} />
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                          </Grid>
+                        </Grid>
+                      </MDBox>
+                    </MDBox>
+                  </Card>
                 </MDBox>
-              </Card>
-            </Grid>
-          </Grid>
+              )}
+            </MDBox>
+            <MDBox className="container mb-2" display="flex" justifyContent="space-between">
+              {/* <RouterLink to="/ChangeApplicantStatus" onClick={() => dispatch(GetApplicant(appData))}> */}
+                {/* <MDButton variant="contained" color="primary">Change Applicant Status</MDButton> */}
+              {/* </RouterLink> */}
+              {/* <DeleteModel deleteApplicant={deleteApplicant} name={appData.name} email={appData.email} /> */}
+            </MDBox>
+          </Card>
         )}
-        <ScrollToggle />
-      </MDBox>
-
-      <Footer />
-    </DashboardLayout>
-  );
-}
+        <Footer />
+      </DashboardLayout>
+    );
+};
 
 export default EvalQuestions
 
