@@ -26,11 +26,11 @@ const applicantSchema = mongoose.Schema({
         trim:true,
         require: [true, "college name is required"]
     },
-    area:{
-        type:String,
-        trim:true,
-        require:[true,"area is required"]
-    },
+    // area:{
+    //     type:String,
+    //     trim:true,
+    //     require:[true,"area is required"]
+    // },
     qualification: {
         type: String,
         trim:true,
@@ -70,6 +70,11 @@ const applicantSchema = mongoose.Schema({
         type: String,
         trim:true,
         require: [true, "Resume link is required"]
+    },
+    sourceOfProfile: {
+        type:String,
+        trim:true,
+        default:"Noukari"
     },
     comments: [{
         commentBy: String,

@@ -62,7 +62,7 @@ function EditCandidateForm() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/get/candidate/${email}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/singleApplicant/${email}`);
         // console.log('Response:', response.data);
         setInputs(response.data)
         setLoading(false)
@@ -190,7 +190,7 @@ function EditCandidateForm() {
                 textAlign="center"
               >
                 <MDTypography variant="h5" fontWeight="medium" color="white" mt={1}>
-                  Edit Candidate Details
+                  Change Status of the Candidate
                 </MDTypography>
 
               </MDBox>
