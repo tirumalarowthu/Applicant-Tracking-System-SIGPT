@@ -17,6 +17,7 @@ const roles = ["ML-Lead", "ML-Engineer", 'MERN Stack Developer', 'Web-dev lead',
 const qualifications = ['Master of Engineering', 'Master of Technology', 'Bachelor of Engineering', 'Bachelor of Technology', "Bachelor's degree", "Others"];
 const branches = ['Computer Science Engineering', 'Information Technology', 'Electronics and Communication Engineering', "Electrical and Electronic Engineering", "Mechanical Engineering", 'Others'];
 const area = ['Software', 'VLSI', 'VLSI_Fresher', 'Embedded'];
+const sourceOfProfileList =['Naukri', 'LinkedIn', 'Consultancy', 'Institute'];
 
 function AddApplicant() {
   const navigate = useNavigate();
@@ -29,11 +30,12 @@ function AddApplicant() {
     qualification: '',
     branch: '',
     role: '',
-    area: '',
+    // area: '',
     passout: '',
     resumeLink: '',
     isExperienced: '',
     previousCompany: '',
+    sourceOfProfile:'',
     experience: '0'
   });
   const [errors, setErrors] = useState({});
@@ -62,7 +64,7 @@ function AddApplicant() {
     } else if (!/^[A-Za-z ]+$/.test(formData.collegeName.trim())) {
       errors.collegeName = "College name should only contain alphabets and spaces";
     }
-    const fieldsToValidate = ['qualification', 'branch', 'role', 'area'];
+    const fieldsToValidate = ['qualification', 'branch', 'role', 'sourceOfProfile'];
     for (const field of fieldsToValidate) {
       if (!formData[field]) {
         errors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
@@ -158,13 +160,13 @@ function AddApplicant() {
               </Select>
               {errors.role && <MDTypography variant="caption" color="error" fontWeight="light">{errors.role}</MDTypography>}
             </MDBox>
-            <MDBox mb={2}>
+            {/* <MDBox mb={2}>
               <Select fullWidth name="area" value={formData.area} onChange={handleChange} displayEmpty style={selectHeight}>
                 <MenuItem value="" disabled>---Select Area---</MenuItem>
                 {area.map(a => <MenuItem key={a} value={a}>{a}</MenuItem>)}
               </Select>
               {errors.area && <MDTypography variant="caption" color="error" fontWeight="light">{errors.area}</MDTypography>}
-            </MDBox>
+            </MDBox> */}
             <MDBox mb={2}>
               <MDInput type="text" label="College Name" fullWidth name="collegeName" value={formData.collegeName} onChange={handleChange} error={!!errors.collegeName} />
               {errors.collegeName && <MDTypography variant="caption" color="error" fontWeight="light">{errors.collegeName}</MDTypography>}
@@ -212,6 +214,13 @@ function AddApplicant() {
                 </MDBox>
               </>
             )}
+            <MDBox mb={2}>
+              <Select fullWidth name="sourceOfProfile" value={formData.sourceOfProfile} onChange={handleChange} displayEmpty style={selectHeight}>
+                <MenuItem value="" disabled>---Select Source of Profile---</MenuItem>
+                {sourceOfProfileList.map(a => <MenuItem key={a} value={a}>{a}</MenuItem>)}
+              </Select>
+              {errors.sourceOfProfile && <MDTypography variant="caption" color="error" fontWeight="light">{errors.area}</MDTypography>}
+            </MDBox>
             <MDBox mt={2} mb={1}>
               {loading ? (
                 <MDButton variant="gradient" disabled color="warning" fullWidth type="submit">Adding...</MDButton>
