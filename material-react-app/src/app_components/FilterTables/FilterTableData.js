@@ -73,6 +73,7 @@ export default function data() {
 
       const response = f_option_value === "Registered" ? await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants/all`) : await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants/${f_option_value.replace(/_/g, " ")}`);
         setLoading(false)
+        console.log(response.data)
         // console.log(updatedCandidates[1].totalScore)
 
         const formatedTableData = response.data.map((item,index) => 
@@ -82,6 +83,8 @@ export default function data() {
                       {index+1}
                     </MDTypography>,
               name: <Author image={team4} name={item.name} email={item.email} />,
+              role: <Role image={team4} role={item.role} experience={item.experience} />,
+
               // area: (
               //   item.area.map((area, index) => (
               //     <MDTypography
@@ -97,86 +100,57 @@ export default function data() {
               //   ))
               // ),
               status: (
-                  <MDBox ml={-1}>
-                    <MDTypography component="a"
-                href="#"
-                variant="caption"
-                color="text"
-                fontWeight="medium">{item.testStatus}</MDTypography>
-                      {/* {item.testStatus === 'Evaluated' ? (
-                          <MDBadge badgeContent={item.testStatus} color="" variant="gradient" size="sm" />
-                      ) : (
-                          <MDBadge badgeContent={item.testStatus} color="" variant="gradient" size="sm" />
-                      )} */}
-                  </MDBox>
-              ),
-              Marks: (
-                <MDTypography
-                component="a"
-                href="#"
-                variant="caption"
-                color="text"
-                fontWeight="medium"
-              >
-                { item.testStatus === "Evaluated" || item.testStatus === "Test Taken"  ? (
-                  `${item.totalScore}/${item.totalQuestions}`
-                ) : (
-                  ""
-                )}
-              </MDTypography>
-              
-              ),
-              action: (
-                <>
-                  <MDTypography style={{ display:"flex"}}>
-                      <MDBox key={item.id}
-                          style ={{
-                          cursor: "pointer"
-                          }} 
-                          ml={-1}>
-                          
-                          <Link to={{ pathname: `/Candidate-List/Edit/${item.email}`, state: { item }}}  >
-                              <MDBadge sx={{textDecoration: 'underline', color:'#FFFFFF'}}  badgeContent="Edit" color="info" variant="gradient" size="sm" />
-                          </Link>
-                      </MDBox>
-                     
-                        <MDBox key={item.id}
-                        onClick={(e) => 
-                            handleEvaluateCandidate(item)
-                        }
-                        style ={{cursor: "pointer"}} ml={0}>
-                          {  item.testStatus === "Evaluated" ?
-                            <MDBadge sx={{textDecoration: 'underline', color:'#FFFFFF'}} badgeContent={item.testStatus === "Evaluated" ?"Re-Evaluate":"Evaluate"} color={item.testStatus === "Evaluated" ?"primary" :"secondary"} variant="gradient" size="sm" /> :
-                            <MDBadge  sx={{textDecoration: item.testStatus === "Test Taken"?'underline':"", color:'#FFFFFF'}}  badgeContent={item.testStatus === "Test Not Taken" ?"Evaluate":"Evaluate"} disabled color={item.testStatus === "Test Not Taken" ?"warning" :"secondary"} variant="gradient" size="sm" /> 
-
-                          }
-
-                    </MDBox>
-                                                  
-                  </MDTypography>
-                </>
-              ),
-              Edit_Action: (
-                <>
-                  <MDTypography style={{ display:"flex"}}>
-                      <MDBox key={item.id}
-                          style ={{
-                          cursor: "pointer"
-                          }} 
-                          ml={-1}>
-                          
-                          <Link to={{ pathname: `/Candidate-List/Edit/${item.email}`, state: { item }}}  >
-                              <MDBadge sx={{textDecoration: 'underline', color:'#FFFFFF'}}  badgeContent="Edit" color="info" variant="gradient" size="sm" />
-                          </Link>
-                      </MDBox>
-                  </MDTypography>
-                </>
-              ),
-              Result: (
-                <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                  {item.result}
+                  <MDTypography
+                  component="a"
+                  href="#"
+                  variant="caption"
+                  color="text"
+                  fontWeight="medium"
+                >
+                {item.status}
+                  {/* { item.testStatus === "Evaluated" || item.testStatus === "Test Taken" ? (
+                    `${item.totalScore}/${item.totalQuestions}`
+                  ) : (
+                    ""
+                  )} */}
                 </MDTypography>
-              )
+                
+                ),
+              source: (
+                  <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+                    {item.sourceOfProfile}
+                  </MDTypography>
+                ),
+                action: (
+                  <>
+                    <MDTypography style={{ display:"flex"}}>
+                        <MDBox key={item.id}
+                            style ={{
+                            cursor: "pointer"
+                            }} 
+                            ml={-1}>
+                            
+                            <Link to={{ pathname: `/Candidate-List/Edit/${item.email}`, state: { item }}}  >
+                                <MDBadge sx={{textDecoration: 'underline', color:'#FFFFFF'}}  badgeContent="Edit Status" color="info" variant="gradient" size="sm" />
+                            </Link>
+                        </MDBox>
+                       
+                          <MDBox key={item.id}
+                          onClick={(e) => 
+                              handleEvaluateCandidate(item)
+                          }
+                          style ={{cursor: "pointer"}} ml={0}>
+                            {  item.testStatus === "Evaluated" ?
+                              <MDBadge sx={{textDecoration: 'underline', color:'#FFFFFF'}} badgeContent={item.testStatus === "Evaluated" ?"Re-Evaluate":"Evaluate"} color={item.testStatus === "Evaluated" ?"primary" :"secondary"} variant="gradient" size="sm" /> :
+                              <MDBadge  sx={{textDecoration: item.testStatus === "Test Taken"?'underline':"", color:'#FFFFFF'}}  badgeContent="view" disabled color={item.testStatus === "Test Not Taken" ?"warning" :"c"} variant="gradient" size="sm" /> 
+
+                            }
+  
+                      </MDBox>
+                                                    
+                    </MDTypography>
+                  </>
+                )
             }
       }
       
@@ -202,18 +176,29 @@ export default function data() {
     </MDBox>
   );
 
+  const Role = ({ image, experience, role }) => (
+    
+    <MDBox display="flex" alignItems="center" lineHeight={1}>
+      {/* <MDAvatar src={image} name={name} size="sm" /> */}
+      <MDBox lineHeight={1}>
+        <MDTypography display="block" variant="button" fontWeight="medium">
+          {role}
+        </MDTypography>
+        <MDTypography variant="caption">{experience === 0 ? "Fresher": `${experience} years`}</MDTypography>
+      </MDBox>
+    </MDBox>
+  );
+
   const customizeColumns = (role) => {
    let columns = [
       { Header: "S.No", accessor: "s_no", align: "left", width: "10%" },
-      { Header: "Name", accessor: "name", width: "30%", align: "left" },
+      { Header: "Name", accessor: "name", width: "25%", align: "left" },
     //   { Header: "Email", accessor: "email", align: "left" },
-      { Header: "Area", accessor: "area", align: "left" },
+    { Header: "Role/experience", accessor: "role", width: "", align: "left" },
       { Header: "Status", accessor: "status", align: "left" },
       // { Header: "Registered ", accessor: "registered_date", align: "center" },
-      { Header: "Action", accessor: "action", align: "center" },
-      { Header: "Action", accessor: "Edit_Action", align: "center" },
-      { Header: "Marks", accessor: "Marks", align: "center" },
-      { Header: "Result", accessor: "Result", align: "center" },
+      { Header: "Source", accessor: "source", align: "center", align: "left" },
+      { Header: "Action", accessor: "action", align: "left" },
     ]
     switch (role) {
       case "Test Not Taken":

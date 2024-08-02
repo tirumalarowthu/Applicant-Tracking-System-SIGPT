@@ -69,9 +69,12 @@ function CandidateList() {
       return rows.filter((candidate) => {
         const name = candidate.name.props.name.toLowerCase();
         const email = candidate.name.props.email.toLowerCase();
+        const sourceName = candidate.source.props.children.toLowerCase();
+
         return (
           name.includes(searchQuery.toLowerCase()) ||
-          email.includes(searchQuery.toLowerCase())
+          email.includes(searchQuery.toLowerCase()) ||
+          sourceName.includes(searchQuery.toLowerCase())
         );
       });
     }
@@ -166,7 +169,7 @@ function CandidateList() {
                   {f_option_value.replace(/_/g, " ")} Candidates List
                 </MDTypography>
                 <MDBox>
-                  {!loading && (
+                  {/* {!loading && (
                     <Button
                       sx={{
                         color: "#FFFFFF",
@@ -182,7 +185,7 @@ function CandidateList() {
                     >
                       Download{" "}
                     </Button>
-                  )}
+                  )} */}
                   <FormControl>
                   <MDInput
                     type="search"

@@ -63,14 +63,20 @@ function CandidateList() {
 
   const filterCandidates = () => {
     if (!searchQuery) {
+      console.log(rows, "The rows data")
       return rows;
+      
     } else {
       return rows.filter((candidate) => {
+        console.log(candidate, "The candidate data")
         const name = candidate.name.props.name.toLowerCase();
         const email = candidate.name.props.email.toLowerCase();
+        const sourceName = candidate.source.props.children.toLowerCase();
+
         return (
           name.includes(searchQuery.toLowerCase()) ||
-          email.includes(searchQuery.toLowerCase())
+          email.includes(searchQuery.toLowerCase()) ||
+          sourceName.includes(searchQuery.toLowerCase())
         );
       });
     }
@@ -171,7 +177,7 @@ function CandidateList() {
                   Candidate List Table
                 </MDTypography>
                 <MDBox>
-                  {!loading && (
+                  {/* {!loading && (
                     <Button
                       sx={{
                         color: "#FFFFFF",
@@ -187,7 +193,7 @@ function CandidateList() {
                     >
                       Download{" "}
                     </Button>
-                  )}
+                  )} */}
                   <FormControl>
                     <MDInput
                       type="search"
