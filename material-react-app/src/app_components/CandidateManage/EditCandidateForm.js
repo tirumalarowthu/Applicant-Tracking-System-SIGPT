@@ -46,6 +46,7 @@ import axios from "axios";
 import { Cabin } from "@mui/icons-material";
 import CircularProgress from '@mui/material/CircularProgress';
 import { toast } from "react-toastify";
+import {ANNEXURE_FORM_URL} from '../../baseUl'
 
 
 
@@ -79,111 +80,119 @@ function EditCandidateForm() {
 
 
   const changeDoneBy = JSON.parse(localStorage.getItem("eval_info")).name
-    const role=JSON.parse(localStorage.getItem("eval_info")).role
-    const statusOpt =role === "Hiring Manager"? ["HR Round", "Hiring Manager","Online Assessment Test", "Technical Round", "Rejected", "On hold", "Selected"]:role==="HR" ?["HR Round", "Hiring Manager",,"Online Assessment Test","Rejected", "On hold", "Selected"]:["HR Round", "Hiring Manager", "Technical Round"]
-    const owners =["Veera(HM)", "Areesh(HR)"]
-    const navigate = useNavigate()
-    // const [errors, setErrors] = useState({})
-    const [loading, setLoading] = useState(false);
-    // const dispatch = useDispatch()
-    const [applicantdetails, setApplicantdetails] = useState({})
-    const [postData, setPostData] = useState({
-        email: applicantdetails.email,
-        commentBy: changeDoneBy,
-        comment: "",
-        status: applicantdetails.status,
-        cRound: applicantdetails.status,
-        nextRound: ""
-    })
-    // console.log(applicantdetails)
-    const handleUpdateApplicantStatus = async (e) => {
-        e.preventDefault()
-        setLoading(true)
-        validForm()
-        postData.email =applicantdetails.email
-        postData.cRound =applicantdetails.status
-        console.log(postData,"post data")
-        if (validForm() === true) {
-            const config = { headers: { "Content-Type": "Application/json" } }
-            try {
-                if (postData.status === "Selected") {
-                    postData.comment=postData.comment+` .To proceed with offer letter : <a href="${window.location.origin}/offerletter/${applicantdetails._id}">Click Here</a>`
-                    await axios.put(`${process.env.REACT_APP_API_URL}/appicant/update/comments`, postData, config)
-                }else{
-                  console.log(postData,"data")
-                    await axios.put(`${process.env.REACT_APP_API_URL}/appicant/update/comments`, postData, config)
-                }
-                try {
-                    toast.success(`${applicantdetails.name} status updated successfully`)
-                    // dispatch(fetchApplicants())
-                    await axios.post(`${process.env.REACT_APP_API_URL}/change/${postData.commentBy}/${postData.nextRound}/${applicantdetails.name}`)
-                    alert(`Email send to ${postData.nextRound} successfully`)
-                    if (postData.status === "Online Assessment Test") {
-                        try {
+  const role = JSON.parse(localStorage.getItem("eval_info")).role
+  const statusOpt = role === "Hiring Manager" ? ["HR Round", "Hiring Manager", "Online Assessment Test", "Technical Round", "Rejected", "On hold", "Selected"] : role === "HR" ? ["HR Round", "Hiring Manager", , "Online Assessment Test", "Rejected", "On hold", "Selected"] : ["HR Round", "Hiring Manager", "Technical Round"]
+  const owners = ["Veera(HM)", "Areesh(HR)"]
+  const navigate = useNavigate()
+  // const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false);
+  // const dispatch = useDispatch()
+  const [applicantdetails, setApplicantdetails] = useState({})
+  const [postData, setPostData] = useState({
+    email: applicantdetails.email,
+    commentBy: changeDoneBy,
+    comment: "",
+    status: applicantdetails.status,
+    cRound: applicantdetails.status,
+    nextRound: ""
+  })
+  // console.log(applicantdetails)
+  const handleUpdateApplicantStatus = async (e) => {
 
-                            //Register for online test in Test evaluation system
-                            await axios.post(`${TES_URL}/register`, { name: applicantdetails.name, email: applicantdetails.email, area: applicantdetails.area, atsId: applicantdetails._id })
-                                .then((res) => console.log(res))
-                                .catch(err => console.log(err.message))
-                            //Send mail to the applicant for online
-                            await axios.post(`${process.env.REACT_APP_API_URL}/send/${applicantdetails.name}/${applicantdetails.email}`)
-                            alert(`Online Assessment Test link sent to ${applicantdetails.name} successfully.`)
-                        }
-                        catch (err) {
-                            alert(`Failed to send test link to ${applicantdetails.name}.`)
-                            console.log(err.message)
-                        }
-                    }
-
-                    navigate("/")
-                } catch (err) {
-                    alert("Failed to send email.")
-                    navigate("/")
-                    setLoading(false)
-                }
-            } catch (err) {
-                console.log(err)
-                alert("Unable to change applicant status now!Try after some time.")
-            }
-
+    e.preventDefault()
+    setLoading(true)
+    validForm()
+    postData.email = applicantdetails.email
+    postData.cRound = applicantdetails.status
+    console.log(postData, "post data")
+    if (validForm() === true) {
+      const config = { headers: { "Content-Type": "Application/json" } }
+      try {
+        if (postData.status === "Selected") {
+          postData.comment = postData.comment + ` .To proceed with offer letter : <a target="_blank" href="${ANNEXURE_FORM_URL}">Click Here</a>`
+          await axios.put(`${process.env.REACT_APP_API_URL}/appicant/update/comments`, postData, config)
         } else {
-            toast.error("Please provide all the inputs!")
+          console.log(postData, "data")
+          await axios.put(`${process.env.REACT_APP_API_URL}/appicant/update/comments`, postData, config)
         }
-        setLoading(false)
+        try {
+          toast.success(`${applicantdetails.name} status updated successfully`)
+          // dispatch(fetchApplicants())
+          await axios.post(`${process.env.REACT_APP_API_URL}/change/${postData.commentBy}/${postData.nextRound}/${applicantdetails.name}`)
+          // alert(`Email send to ${postData.nextRound} successfully`)
+          // if (postData.status === "Online Assessment Test") {
+          //   try {
+
+          //     //Register for online test in Test evaluation system
+          //     await axios.post(`${TES_URL}/register`,
+          //       {
+          //         name: applicantdetails.name,
+          //         email: applicantdetails.email,
+          //         area: applicantdetails.area,
+          //         atsId: applicantdetails._id
+
+          //       })
+          //       .then((res) => console.log(res))
+          //       .catch(err => console.log(err.message))
+          //     //Send mail to the applicant for online
+          //     await axios.post(`${process.env.REACT_APP_API_URL}/send/${applicantdetails.name}/${applicantdetails.email}`)
+          //     alert(`Online Assessment Test link sent to ${applicantdetails.name} successfully.`)
+          //   }
+          //   catch (err) {
+          //     alert(`Failed to send test link to ${applicantdetails.name}.`)
+          //     console.log(err.message)
+          //   }
+          // }
+
+          navigate("/")
+        } catch (err) {
+          alert("Failed to send email.")
+          navigate("/")
+          setLoading(false)
+        }
+      } catch (err) {
+        console.log(err)
+        alert("Unable to change applicant status now!Try after some time.")
+      }
+
+    } else {
+      toast.error("Please provide all the inputs!")
     }
-    //Handling input Change 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target
-        setPostData({ ...postData, [name]: value })
+    setLoading(false)
+  }
+  //Handling input Change 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setPostData({ ...postData, [name]: value })
+  }
+  //validations for the form
+  const validForm = () => {
+    let isValid = true
+    let errors = {}
+    if (postData.status === applicantdetails.status || postData.status === "") {
+      errors["status"] = "Please update the status of the applicant."
+      isValid = false
     }
-    //validations for the form
-    const validForm = () => {
-        let isValid = true
-        let errors = {}
-        if (postData.status === applicantdetails.status || postData.status === "") {
-            errors["status"] = "Please update the status of the applicant."
-            isValid = false
-        }
-        if (!postData.comment || postData.comment === "") {
-            errors["comment"] = "Please write comments for the applicant."
-            isValid = false
-        }
-        if (!postData.commentBy || postData.commentBy === "") {
-            errors["commentBy"] = "Please choose commented one."
-            isValid = false
-        }
-        if (!postData.nextRound) {
-            errors["nextRound"] = "Please choose next round owner."
-            isValid = false
-        }
-        setErrors(errors)
-       
-        return isValid;
+    if (!postData.comment || postData.comment === "") {
+      errors["comment"] = "Please write comments for the applicant."
+      isValid = false
     }
-    ///To hide the errors .
-    const hideErrors = (e) => {
-        setErrors({ ...errors, [e.target.name]: "" })
+    if (!postData.commentBy || postData.commentBy === "") {
+      errors["commentBy"] = "Please choose commented one."
+      isValid = false
     }
+    if (!postData.nextRound) {
+      errors["nextRound"] = "Please choose next round owner."
+      isValid = false
+    }
+    setErrors(errors)
+
+    return isValid;
+  }
+  ///To hide the errors .
+  const hideErrors = (e) => {
+    setErrors({ ...errors, [e.target.name]: "" })
+  }
 
   // useEffect(() => {
   //     const candidate = candidateList.find(candidate => candidate._id === _id);
@@ -257,16 +266,16 @@ function EditCandidateForm() {
     // Calculate total time for selected areas
     let totalSelectedTime = 0;
     inputs.area.forEach(selectedArea => {
-        const selectedAreaIndex = candidate_areas.findIndex(item => item.area === selectedArea);
-        if (selectedAreaIndex !== -1) {
-            totalSelectedTime += candidate_areas[selectedAreaIndex].time;
-        }
+      const selectedAreaIndex = candidate_areas.findIndex(item => item.area === selectedArea);
+      if (selectedAreaIndex !== -1) {
+        totalSelectedTime += candidate_areas[selectedAreaIndex].time;
+      }
     });
 
     // If the selected area is not in the inputs.area array, and there are less than 2 areas selected, add it
     if (areaIndex === -1 && inputs.area.length < 2) {
       setInputs({ ...inputs, area: [...inputs.area, area], timeLeft: inputs.timeLeft + time });
-    } 
+    }
     // If the selected area is already in the inputs.area array, remove it
     else if (areaIndex !== -1) {
       const updatedAreas = [...inputs.area];
@@ -277,7 +286,7 @@ function EditCandidateForm() {
     else {
       alert("Select up to 2 areas only for the Online Assessment.");
     }
-};
+  };
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -356,7 +365,7 @@ function EditCandidateForm() {
                       IconComponent={() => <ArrowDropDownIcon style={{ marginRight: '10px' }} />}
                     >
                       {/* <MenuItem value="">Select Status</MenuItem> */}
-                      {/* {inputs.testStatus === "Test Not Taken" ? (
+                  {/* {inputs.testStatus === "Test Not Taken" ? (
                         <MenuItem value="Test Cancelled">Cancel Test</MenuItem>
                       ) : null}
                       {inputs.testStatus === "Test Cancelled" ? (
@@ -372,7 +381,7 @@ function EditCandidateForm() {
                         <MenuItem value={inputs.testStatus}>{inputs.testStatus}</MenuItem>
                       ) : null}
                     </Select>
-                  </FormControl> */} 
+                  </FormControl> */}
 
                   {/* <MDBox>
                     <MDTypography >Selected areas for the Online Assessment </MDTypography>
@@ -392,68 +401,96 @@ function EditCandidateForm() {
                           label={<span style={{ fontSize:"12px",fontWeight:"400" }}>{item.areaOption}</span>}
                         />
                       ))} */}
-                    {/* </MDBox> */}
                   {/* </MDBox> */}
-                
-            <MDBox>
-                {/* <form className='border border-2 p-2 rounded bg-light' onSubmit={handleUpdateApplicantStatus}> */}
-                <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
-                    <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
-                    Change Done By:
-                    </MDTypography>
-                    <MDInput className='form-control' fullWidth name='commentBy' readOnly onChange={handleInputChange} value={changeDoneBy} onFocus={hideErrors} type="text"/>
-                    {errors.commentBy ? <p className='text-danger'>{errors.commentBy}</p> : null}
-                  </MDBox>
-                  <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
-                    <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
-                    Current Status:
-                    </MDTypography>
-                    <MDInput className='form-control' fullWidth name='cRound' value={applicantdetails.status} readOnly onChange={handleInputChange} type="text" />
-                  </MDBox>
-                  <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
-                    <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
-                    New Status:
-                    </MDTypography>
+                  {/* </MDBox> */}
 
-                    <Select
-                      style={{ width: '100%', height: '40px', textAlign: "start" }}
-                      label=""
-                      labelId="test-status-label"
-                      id="test-status-select"
-                      value={postData.status || "Select Status"}
-                      onChange={handleInputChange}
-                      name="status"
-                      // disabled={inputs.testStatus === "Test Taken" || inputs.testStatus === "Evaluated"}
-                      IconComponent={() => <ArrowDropDownIcon style={{ marginRight: '10px' }} />}
-                    >
-                      <MenuItem value="">Select Status</MenuItem>
-                      {statusOpt && statusOpt.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
-                    </Select>
-                    
-                    {/* <MDInput className='form-control' name='cRound' value={applicantdetails.status} readOnly onChange={handleInputChange} type="text" /> */}
-                  </MDBox>
-                  <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
-                    <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
-                    New Owner:
-                    </MDTypography>
+                  <MDBox>
+                    {/* <form className='border border-2 p-2 rounded bg-light' onSubmit={handleUpdateApplicantStatus}> */}
+                    <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
+                      <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
+                        Change Done By:
+                      </MDTypography>
+                      <MDInput className='form-control' fullWidth name='commentBy' readOnly onChange={handleInputChange} value={changeDoneBy} onFocus={hideErrors} type="text" />
+                      {errors.commentBy ? <p className='text-danger'>{errors.commentBy}</p> : null}
+                    </MDBox>
+                    <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
+                      <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
+                        Current Status:
+                      </MDTypography>
+                      <MDInput className='form-control' fullWidth name='cRound' value={applicantdetails.status} readOnly onChange={handleInputChange} type="text" />
+                    </MDBox>
+                    <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
+                      <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
+                        New Status:
+                      </MDTypography>
 
-                    <Select
-                      style={{ width: '100%', height: '40px', textAlign: "start" }}
-                      label=""
-                      labelId="test-status-label"
-                      id="test-status-select"
-                      value={postData.nextRound || "Select Status"}
-                      onChange={handleInputChange}
-                      name="nextRound"
-                      disabled={inputs.testStatus === "Test Taken" || inputs.testStatus === "Evaluated"}
-                      IconComponent={() => <ArrowDropDownIcon style={{ marginRight: '10px' }} />}
-                    >
-                      <MenuItem value="">Select Status</MenuItem>
-                      {owners&& owners.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
-                    </Select>
-                    
-                    {/* <MDInput className='form-control' name='cRound' value={applicantdetails.status} readOnly onChange={handleInputChange} type="text" /> */}
-                  </MDBox>
+                      <Select
+                        style={{ width: '100%', height: '40px', textAlign: "start" }}
+                        label=""
+                        labelId="test-status-label"
+                        id="test-status-select"
+                        value={postData.status || "Select Status"}
+                        onChange={handleInputChange}
+                        name="status"
+                        // disabled={inputs.testStatus === "Test Taken" || inputs.testStatus === "Evaluated"}
+                        IconComponent={() => <ArrowDropDownIcon style={{ marginRight: '10px' }} />}
+                      >
+                        <MenuItem value="">Select Status</MenuItem>
+                        {statusOpt && statusOpt.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                      </Select>
+
+                      {/* <MDInput className='form-control' name='cRound' value={applicantdetails.status} readOnly onChange={handleInputChange} type="text" /> */}
+                    </MDBox>
+
+
+                    {/* // For online Assessment test code:  */}
+                    {/* {
+                      postData && postData?.status === "Online Assessment Test" && 
+                        <MDBox>
+                          <MDTypography style={{ textAlign: 'start', fontSize: "14px" }} >Select areas for the Online Assessment </MDTypography>
+                          <MDBox style={{ textAlign: 'start', display: "flex", justifyContent: "space-between", flexWrap: "wrap" }} >
+                            {candidate_areas.map((item) => (
+                              <FormControlLabel
+                                key={item.areaOption}
+                                style={{ width: "48%" }}
+                                control={
+                                  <Checkbox
+                                    checked={TESAreainputs?.area?.includes(item.area)}
+                                    onChange={() => handleAreaCheckBox(item.area, item.time)}
+                                  />
+                                }
+                                label={<span style={{ fontSize: "10px", fontWeight: "400" }}>{item.areaOption.slice(0, item.areaOption.indexOf('('))}</span>}
+                              />
+                            ))}
+                          </MDBox>
+
+                        </MDBox>  
+                    } */}
+
+
+
+                    <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
+                      <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
+                        New Owner:
+                      </MDTypography>
+
+                      <Select
+                        style={{ width: '100%', height: '40px', textAlign: "start" }}
+                        label=""
+                        labelId="test-status-label"
+                        id="test-status-select"
+                        value={postData.nextRound || "Select Status"}
+                        onChange={handleInputChange}
+                        name="nextRound"
+                        disabled={inputs.testStatus === "Test Taken" || inputs.testStatus === "Evaluated"}
+                        IconComponent={() => <ArrowDropDownIcon style={{ marginRight: '10px' }} />}
+                      >
+                        <MenuItem value="">Select Status</MenuItem>
+                        {owners && owners.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                      </Select>
+
+                      {/* <MDInput className='form-control' name='cRound' value={applicantdetails.status} readOnly onChange={handleInputChange} type="text" /> */}
+                    </MDBox>
 
 
                     {/* <MDBox className="mb-3 row">
@@ -477,12 +514,12 @@ function EditCandidateForm() {
                         </MDBox>
                     </MDBox> */}
                     <MDBox mb={2} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
-                    <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
-                      Comments:
-                    </MDTypography>
-                    <MDInput className='form-control' fullWidth name="comment" value={postData.comment} onFocus={hideErrors} onChange={handleInputChange} type="text" />
-                            {errors.comment ? <p className='text-danger'>{errors.comment}</p> : null}
-                  </MDBox>
+                      <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
+                        Comments:
+                      </MDTypography>
+                      <MDInput className='form-control' fullWidth name="comment" value={postData.comment} onFocus={hideErrors} onChange={handleInputChange} type="text" />
+                      {errors.comment ? <p className='text-danger'>{errors.comment}</p> : null}
+                    </MDBox>
                     {/* <MDBox className="mb-3 row">
                         <label className="col-sm-3 col-form-label">Comments:</label>
                         <MDBox className="col-sm-9">
@@ -497,9 +534,9 @@ function EditCandidateForm() {
                                 : <button type="submit" className="btn btn-primary" disabled={loading}>Change Status</button>
                         }
                     </MDBox> */}
-                {/* </form> */}
-            </MDBox>
-        
+                    {/* </form> */}
+                  </MDBox>
+
 
                   <MDBox mt={4} mb={1}>
                     <MDButton
@@ -522,7 +559,7 @@ function EditCandidateForm() {
 
                 </MDBox>
 
-                </MDBox>
+              </MDBox>
               {/* </MDBox> */}
             </Card>
           </Grid>

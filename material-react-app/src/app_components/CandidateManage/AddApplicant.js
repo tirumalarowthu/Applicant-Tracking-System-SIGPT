@@ -157,13 +157,13 @@ function AddApplicant() {
             style: { fontSize: "16px" },
           });
           toastShown = true; // Set flag to true
-          await axios.post(
-            `${baseUrl}/add/send/${formData.name}/${formData.role}`
-          );
-          toast.info("Email sent to Hiring Manager successfully.", {
-            autoClose: 2000,
-            style: { fontSize: "16px" },
-          });
+          // await axios.post(
+          //   `${process.env.REACT_APP_API_URL}/add/send/${formData.name}/${formData.role}`
+          // );
+          // toast.info("Email sent to Hiring Manager successfully.", {
+          //   autoClose: 2000,
+          //   style: { fontSize: "16px" },
+          // });
           navigate("/");
         } else {
           setErrors(response.data || {});
