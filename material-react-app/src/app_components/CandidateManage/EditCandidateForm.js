@@ -57,7 +57,7 @@ function EditCandidateForm() {
   const [inputs, setInputs] = useState({});
   // const navigate = useNavigate();
   // const [loading, setLoading] = useState(true);
-
+ 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -114,10 +114,12 @@ function EditCandidateForm() {
                     await axios.put(`${process.env.REACT_APP_API_URL}/appicant/update/comments`, postData, config)
                 }
                 try {
-                    toast.success(`${applicantdetails.name} status updated successfully`)
+                    toast.success(`${applicantdetails.name} status updated successfully`, {
+                      autoClose: 3000,
+                    })
                     // dispatch(fetchApplicants())
                     await axios.post(`${process.env.REACT_APP_API_URL}/change/${postData.commentBy}/${postData.nextRound}/${applicantdetails.name}`)
-                    alert(`Email send to ${postData.nextRound} successfully`)
+                    // alert(`Email send to ${postData.nextRound} successfully`)
                     if (postData.status === "Online Assessment Test") {
                         try {
 
@@ -135,7 +137,7 @@ function EditCandidateForm() {
                         }
                     }
 
-                    navigate("/")
+                    navigate(-1)
                 } catch (err) {
                     alert("Failed to send email.")
                     navigate("/")
@@ -146,9 +148,10 @@ function EditCandidateForm() {
                 alert("Unable to change applicant status now!Try after some time.")
             }
 
-        } else {
-            toast.error("Please provide all the inputs!")
-        }
+        } 
+        // else {
+        //     toast.error("Please provide all the inputs!")
+        // }
         setLoading(false)
     }
     //Handling input Change 
@@ -158,28 +161,27 @@ function EditCandidateForm() {
     }
     //validations for the form
     const validForm = () => {
-        let isValid = true
-        let errors = {}
-        if (postData.status === applicantdetails.status || postData.status === "") {
-            errors["status"] = "Please update the status of the applicant."
-            isValid = false
-        }
-        if (!postData.comment || postData.comment === "") {
-            errors["comment"] = "Please write comments for the applicant."
-            isValid = false
-        }
-        if (!postData.commentBy || postData.commentBy === "") {
-            errors["commentBy"] = "Please choose commented one."
-            isValid = false
-        }
-        if (!postData.nextRound) {
-            errors["nextRound"] = "Please choose next round owner."
-            isValid = false
-        }
-        setErrors(errors)
-       
-        return isValid;
-    }
+      let isValid = true
+      let errors = {}
+      if (postData.status === applicantdetails.status || postData.status === "") {
+          errors["status"] = "Please update the status of the applicant."
+          isValid = false
+      }
+      if (!postData.comment || postData.comment === "") {
+          errors["comment"] = "Please write comments for the applicant."
+          isValid = false
+      }
+      if (!postData.commentBy || postData.commentBy === "") {
+          errors["commentBy"] = "Please choose commented one."
+          isValid = false
+      }
+      if (!postData.nextRound) {
+          errors["nextRound"] = "Please choose next round owner."
+          isValid = false
+      }
+      setErrors(errors)
+      return isValid;
+  }
     ///To hide the errors .
     const hideErrors = (e) => {
         setErrors({ ...errors, [e.target.name]: "" })
@@ -304,6 +306,7 @@ function EditCandidateForm() {
 
               </MDBox>
               <MDBox pt={1} pb={3} px={3} >
+              
                 <MDBox component="form" role="form" method="POST" onSubmit={handleUpdateApplicantStatus}>
                   <MDBox mb={1} sx={{ display: "flex", alignItems: "flex-start", flexDirection: "column", }}>
                     <MDTypography component="label" variant="h6" color="" htmlFor="nameInput">
