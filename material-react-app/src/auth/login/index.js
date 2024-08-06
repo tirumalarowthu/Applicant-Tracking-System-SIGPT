@@ -19,6 +19,10 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 // Authentication layout components
 import BasicLayoutLanding from "layouts/authentication/components/BasicLayoutLanding";
@@ -94,8 +98,7 @@ function Login() {
     try {
       // const response = await AuthService.login(myData);
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/admin/login/${inputs.email}`, inputs)
-      // console.log(response.data)
-      console.log(response)
+      console.log(response.data)
       if(response.data){
         localStorage.setItem('eval_info', JSON.stringify(response.data))
         console.log(localStorage.getItem("eval_info"))
@@ -103,12 +106,28 @@ function Login() {
       }
       
     } catch (res) {
-      // console.log(res)
+      console.log(res.response.data, "response of the error")
       if (res.message ==="Network Error"){
         toast.error("No internet connection!")
         setLoading(false)
         // window.location.reload()
-      } else {
+      } 
+      else if ( res.response.data.email ==="Email not found.") {
+        toast.error("The Email you've entered is not found.")
+        setLoading(false)
+                // window.location.reload()
+
+      }
+      else if ( res.response.data.password ==="Incorrect Password.") {
+        toast.error("Incorrect Password.")
+        setLoading(false)
+                // window.location.reload()
+
+      }
+      
+      
+      
+      else {
         if (res.response.status === 400){
           console.log(res.response.data)
           setCredentialsError(res.response.data);
@@ -127,6 +146,8 @@ function Login() {
       // }
     }
 
+    
+
     return () => {
       setInputs({
         email: "",
@@ -138,6 +159,14 @@ function Login() {
         passwordError: false,
       });
     };
+  };
+
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
   };
 
   return (
@@ -190,17 +219,30 @@ function Login() {
               />
             </MDBox>
             <MDBox mb={2}>
-              <MDInput
-                type="password"
-                label="Password"
-                fullWidth
-                name="password"
-                value={inputs.password}
-                onChange={changeHandler}
-                error={errors.passwordError}
-                autoComplete = "new-password"
-              />
-            </MDBox>
+      <MDInput
+        type={showPassword ? "text" : "password"}
+        label="Password"
+        fullWidth
+        name="password"
+        value={inputs.password}
+        onChange={changeHandler}
+        error={errors.passwordError}
+        autoComplete="new-password"
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="toggle password visibility"
+                onClick={handleClickShowPassword}
+                onMouseDown={handleMouseDownPassword}
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+    </MDBox>
             {/* <MDBox display="flex" alignItems="center" ml={-1}>
               <Switch checked={rememberMe} onChange={handleSetRememberMe} />
               <MDTypography
@@ -228,7 +270,7 @@ function Login() {
                 {credentialsErros}
               </MDTypography>
             )}
-            <MDBox mt={3} mb={1} textAlign="center">
+            {/* <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
                 Forgot your password? Reset it{" "}
                 <MDTypography
@@ -242,7 +284,7 @@ function Login() {
                   here
                 </MDTypography>
               </MDTypography>
-            </MDBox>
+            </MDBox> */}
             {/* <MDBox mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
                 Don&apos;t have an account?{" "}

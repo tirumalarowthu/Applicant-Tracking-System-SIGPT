@@ -57,7 +57,7 @@ function EvalQuestions() {
   ///delete Applicant
   const deleteApplicant = async () => {
     await axios
-      .delete(`${baseUrl}/applicant/delete/${appData._id}`)
+      .delete(`${process.env.REACT_APP_API_URL}/applicant/delete/${appData._id}`)
       .then((res) => {
         alert(`Applicant ${appData.name} deleted successfully`);
         navigator("/");
