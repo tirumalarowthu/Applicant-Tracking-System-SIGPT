@@ -141,6 +141,12 @@ function EditCandidateForm() {
             postData,
             config
           );
+        } else if (postData.status === "On hold") {
+          await axios.put(
+            `${process.env.REACT_APP_API_URL}/appicant/update/comments`,
+            postData,
+            config
+          );
         } else {
           console.log(postData, "data");
           await axios.put(
