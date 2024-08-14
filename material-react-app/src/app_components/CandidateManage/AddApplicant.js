@@ -164,6 +164,7 @@ function AddApplicant() {
           //   autoClose: 2000,
           //   style: { fontSize: "16px" },
           // });
+          window.location.reload()
           navigate("/");
         } else {
           setErrors(response.data || {});
