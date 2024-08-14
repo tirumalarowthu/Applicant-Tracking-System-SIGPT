@@ -28,12 +28,12 @@ app.use("/",offerLetter)
 
 //Frontend Integration    
 const _dirname = path.dirname("")
-const builPath = path.join(_dirname, "../client/build");
+const builPath = path.join(_dirname, "../material-react-app/build");
 // app.use(express.static(builPath))
 app.use(express.static(path.join(builPath)));
 app.get("/*", function (req, res) {
     res.sendFile('index.html',
-        { root: path.join(_dirname, "../client/build") },
+        { root: path.join(_dirname, "../material-react-app/build") },
         function (err) {
             if (err) {
                 res.status(500).send(err)
