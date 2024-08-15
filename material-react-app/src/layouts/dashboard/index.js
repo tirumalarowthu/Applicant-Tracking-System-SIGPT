@@ -37,6 +37,7 @@ import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom"
+import MDTypography from "components/MDTypography";
 
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
@@ -266,7 +267,99 @@ function Dashboard() {
         </MDBox> */}
       </MDBox>
       <MDBox>
-
+        <MDTypography>Based on the Source of Profiles : </MDTypography>
+        <MDBox py={3}>
+          <Grid container spacing={3}>
+            {/* <Grid item xs={12} md={6} lg={3}>
+              <MDBox mb={1.5}>
+                <Link to="/Dashboard/Registered">
+                  <ComplexStatisticsCard
+                    color="secondary"
+                    icon="person_add"
+                    title="Registered"
+                    count={testStatusInfo["totalCount"] || 0}
+                    percentage={{
+                      color: "success",
+                      amount: "",
+                      label: "Just updated",
+                    }}
+                  />
+                </Link>
+              </MDBox>
+            </Grid> */}
+            <Grid item xs={12} md={6} lg={3}>
+              <MDBox mb={1.5}>
+                <Link to="/Dashboard/Consultancy">
+                  <ComplexStatisticsCard
+                    color="dark"
+                    icon="assignment_late"
+                    title="Consultancy"
+                    count={testStatusInfo["Consultancy"] || 0}
+                    percentage={{
+                      color: "success",
+                      amount: "",
+                      label: "Just updated",
+                    }}
+                  />
+                </Link>
+              </MDBox>
+            </Grid>
+            <Grid item xs={12} md={6} lg={3}>
+              <MDBox mb={1.5}>
+                <Link to="/Dashboard/LinkedIn">
+                  <ComplexStatisticsCard
+                    color="success"
+                    icon="assignment_late"
+                    title="LinkedIn"
+                    count={testStatusInfo["LinkedIn"] || 0}
+                    percentage={{
+                      color: "success",
+                      amount: "",
+                      label: "Just updated",
+                    }}
+                  />
+                </Link>
+              </MDBox>
+            </Grid>
+            <Grid item xs={12} md={6} lg={3}>
+              <MDBox mb={1.5}>
+                <Link to="/Dashboard/Institute">
+                  <ComplexStatisticsCard
+                    color="success"
+                    icon="check_circle"
+                    title="Institute"
+                    count={testStatusInfo["Institute"] || 0}
+                    percentage={{
+                      color: "success",
+                      amount: "",
+                      label: "Just updated",
+                    }}
+                  />
+                </Link>
+              </MDBox>
+            </Grid>
+            <Grid item xs={12} md={6} lg={3}>
+              <MDBox mb={1.5}>
+                <Link to="/Dashboard/Naukri">
+                  <ComplexStatisticsCard
+                    icon="assignment_turned_in"
+                    title="Naukri"
+                    count={testStatusInfo["Naukri"] || 0}
+                    percentage={{
+                      color: "success",
+                      amount: "",
+                      label: "Just updated",
+                    }}
+                  />
+                </Link>
+              </MDBox>
+            </Grid>
+          
+            
+           
+          </Grid>
+         
+        </MDBox>
       </MDBox>
       <Footer />
     </DashboardLayout>

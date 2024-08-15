@@ -1,5 +1,5 @@
 const express = require("express")
-const { addApplicant, ApplicantList, SingleApplicant, ApplicantsInfoByStatus, ApplicantNextProcess, updateComment, emailSearch, deteleApplicant, ApplicantById, } = require("../controllers/applicantControlls")
+const { addApplicant, ApplicantList, SingleApplicant, ApplicantFilterList, ApplicantsInfoByStatus, ApplicantNextProcess, updateComment, emailSearch, deteleApplicant, ApplicantById, } = require("../controllers/applicantControlls")
 const Applicant = require("../models/applicant")
 const applicantRoutes = express.Router()
 
@@ -11,6 +11,7 @@ applicantRoutes.post("/applicant/add", addApplicant)
  
 applicantRoutes.put("/appicant/update/comments", ApplicantNextProcess)
 applicantRoutes.get("/allApplicants/:status", ApplicantList)
+applicantRoutes.get("/allApplicants", ApplicantFilterList)
 applicantRoutes.get("/singleApplicant/:email", SingleApplicant)
 applicantRoutes.get("/applicants/info", ApplicantsInfoByStatus)
 applicantRoutes.get("/applicant/id/:_id", ApplicantById)

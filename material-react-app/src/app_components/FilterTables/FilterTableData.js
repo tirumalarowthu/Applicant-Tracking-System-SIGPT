@@ -70,8 +70,13 @@ export default function data() {
   const getCandidateList = async () => {
     try {
       // console.log(f_option_value)
+      const sourceFilters = ['LinkedIn', 'Consultancy', 'Institute', 'Naukri'];
+      const response = f_option_value === "Registered" ?
+        await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants`) :
+        sourceFilters.includes(f_option_value) ?
+          await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants?sourceOfProfile=${f_option_value.replace(/_/g, " ")}`) :
+          await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants?status=${f_option_value.replace(/_/g, " ")}`);
 
-      const response = f_option_value === "Registered" ? await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants/all`) : await axios.get(`${process.env.REACT_APP_API_URL}/allApplicants/${f_option_value.replace(/_/g, " ")}`);
         setLoading(false)
         console.log(response.data)
         // console.log(updatedCandidates[1].totalScore)

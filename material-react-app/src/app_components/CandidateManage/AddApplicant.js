@@ -442,6 +442,10 @@ function AddApplicant() {
                 onChange={handleChange}
                 error={!!errors.resumeLink}
               />
+              <MDTypography style={{ fontSize: '12px', color: 'tomato' }}>
+                Note: please paste the Google Drive link which is accessible to everyone.
+              </MDTypography>
+
               {errors.resumeLink && (
                 <MDTypography
                   variant="caption"

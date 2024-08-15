@@ -82,6 +82,24 @@ const ApplicantList = asyncHandler(async (req, res) => {
 
 })
 
+const ApplicantFilterList = asyncHandler(async (req, res) => {
+    try {
+        // console.log(req.query, Object.keys(req.query).length)
+        const allApplicants = Object.keys(req.query).length === 0 ?
+         await Applicant.find().sort({ updatedAt: -1 }) :
+          await Applicant.find(req.query).sort({ updatedAt: -1 })
+        // const allApplicants = req.params.status !== 'all' ? await Applicant.find({ status: req.params.status }).sort({ updatedAt: -1 }) : await Applicant.find({}).sort({ updatedAt: -1 })
+        if (allApplicants.length > 0) {
+            res.status(200).json(allApplicants)
+        } else {
+            res.status(404).send(allApplicants)
+        }
+    }
+    catch (err) {
+        console.log(err.message)
+    }
+
+})
 // get count by status : 
 const ApplicantsInfoByStatus = asyncHandler(async (req, res) => {
     try {
@@ -97,23 +115,12 @@ const ApplicantsInfoByStatus = asyncHandler(async (req, res) => {
                             },
                         },
                     ],
-                    isApprovedCounts: [
-                        { $group: { _id: "$isApproved", count: { $sum: 1 } } },
+                    sourceOfProfileCounts: [
+                        { $group: { _id: "$sourceOfProfile", count: { $sum: 1 } } },
                         {
                             $group: {
                                 _id: null,
-                                data: {
-                                    $push: {
-                                        k: {
-                                            $cond: {
-                                                if: { $eq: ["$_id", true] },
-                                                then: "isApproved",
-                                                else: "isNotApproved",
-                                            },
-                                        },
-                                        v: "$count",
-                                    },
-                                },
+                                data: { $push: { k: "$_id", v: "$count" } },
                             },
                         },
                     ],
@@ -127,32 +134,32 @@ const ApplicantsInfoByStatus = asyncHandler(async (req, res) => {
                             $ifNull: [{ $arrayElemAt: ["$testStatusCounts.data", 0] }, []],
                         },
                     },
-                    isApprovedCounts: {
+                    sourceOfProfileCounts: {
                         $arrayToObject: {
-                            $ifNull: [{ $arrayElemAt: ["$isApprovedCounts.data", 0] }, []],
+                            $ifNull: [{ $arrayElemAt: ["$sourceOfProfileCounts.data", 0] }, []],
                         },
                     },
                     totalCount: { $arrayElemAt: ["$totalCount.total", 0] },
                 },
             },
         ]);
-        console.log(data,"data")
+        // console.log(data, "data");
 
         // Extract the counts and format the response
         const formattedData = {
             ...data[0].testStatusCounts,
-            ...data[0].isApprovedCounts,
+            ...data[0].sourceOfProfileCounts,
             totalCount: data[0].totalCount,
         };
 
         // Send the response
         res.json(formattedData);
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+        console.log(err.message);
     }
-    catch (err) {
-        res.status(500).json({msg:err.message})
-        console.log(err.message)
-    }
-})
+});
+
 
 
 
@@ -260,4 +267,4 @@ const deteleApplicant = asyncHandler(async (req, res) => {
 
 
 
-module.exports = { addApplicant, ApplicantsInfoByStatus, ApplicantList, SingleApplicant, ApplicantById, ApplicantNextProcess, updateComment, emailSearch, deteleApplicant }
+module.exports = { ApplicantFilterList,addApplicant, ApplicantsInfoByStatus, ApplicantList, SingleApplicant, ApplicantById, ApplicantNextProcess, updateComment, emailSearch, deteleApplicant }
